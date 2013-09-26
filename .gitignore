@@ -1,0 +1,4 @@
+*.dSYM
+*~
+.rust
+build
