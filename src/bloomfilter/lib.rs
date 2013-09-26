@@ -7,9 +7,10 @@
  * 2 hash functions, generated with SipHash-2-4 using randomized keys.
  */
 
+#[desc = "A fast Bloom filter implementation."];
+#[license = "BSD"];
 #[link(name = "bloomfilter", vers = "0.1")];
 #[crate_type = "lib"];
-#[license = "BSD"];
 #[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)]
 
 extern mod extra;
