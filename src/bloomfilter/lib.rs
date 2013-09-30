@@ -55,7 +55,7 @@ impl Bloom {
 
 /// Create a new bloom filter structure.
 /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
-/// items_count is an estimation of the maximum number of items to store
+/// items_count is an estimation of the maximum number of items to store.
     pub fn new(bitmap_size: uint, items_count: uint) -> Bloom {
         assert!(bitmap_size > 0u && items_count > 0u);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
@@ -68,6 +68,25 @@ impl Bloom {
             k_num: k_num,
             skeys: skeys
         }
+    }
+
+/// Create a new bloom filter structure.
+/// items_count is an estimation of the maximum number of items to store.
+/// fp_p is the wanted rate of false positives, in ]0.0, 1.0[
+    pub fn new_for_fp_rate(items_count: uint, fp_p: f64) -> Bloom {
+        let bitmap_size = Bloom::compute_bitmap_size(items_count, fp_p);
+        Bloom::new(bitmap_size, items_count)
+    }
+
+/// Compute a recommended bitmap size for items_count items
+/// and a fp_p rate of false positives.
+/// fp_p obviously has to be within the ]0.0, 1.0[ range.
+    pub fn compute_bitmap_size(items_count: uint, fp_p: f64) -> uint {
+        assert!(items_count > 0u);
+        assert!(fp_p > 0.0 && fp_p < 1.0);
+        let log2 = num::ln(2.0f64);
+        let log2_2 = log2 * log2;
+        ((items_count as f64) * num::ln(fp_p) / (-8.0 * log2_2)).ceil() as uint
     }
 
 /// Record the presence of an item.
