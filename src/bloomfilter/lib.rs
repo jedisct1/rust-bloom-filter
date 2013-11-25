@@ -15,7 +15,6 @@
 
 extern mod extra;
 
-use std::hash;
 use std::num;
 use std::rand;
 use std::rand::Rng;
@@ -90,7 +89,7 @@ impl Bloom {
     }
 
 /// Record the presence of an item.
-    pub fn set<T: hash::Hash>(& mut self, item: T) {
+    pub fn set<T: Hash>(& mut self, item: T) {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in range(0u, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -101,7 +100,7 @@ impl Bloom {
 
 /// Check if an item is present in the set.
 /// There can be false positives, but no false negatives.
-    pub fn check<T: hash::Hash>(&self, item: T) -> bool {
+    pub fn check<T: Hash>(&self, item: T) -> bool {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in range(0u, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -115,7 +114,7 @@ impl Bloom {
 
 /// Record the presence of an item in the set,
 /// and return the previous state of this item.
-    pub fn check_and_set<T: hash::Hash>(&mut self, item: T) -> bool {
+    pub fn check_and_set<T: Hash>(&mut self, item: T) -> bool {
         let mut hashes = [ 0u64, 0u64 ];
         let mut found = true;
         for k_i in range(0u, self.k_num) {
@@ -136,7 +135,7 @@ impl Bloom {
         num::max(k_num, 1)
     }
 
-    fn bloom_hash<T: hash::Hash>(&self, hashes: & mut [u64, ..2],
+    fn bloom_hash<T: Hash>(&self, hashes: & mut [u64, ..2],
                   item: &T, k_i: uint) -> u64 {
         if k_i < 2 {
             let skey = self.skeys[k_i];
