@@ -11,7 +11,7 @@
 #[license = "BSD"];
 #[link(name = "bloomfilter", vers = "0.1")];
 #[crate_type = "lib"];
-#[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)]
+#[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)];
 
 extern mod extra;
 
