@@ -26,13 +26,6 @@ struct SipHashKey {
 }
 
 impl SipHashKey {
-    fn new(k1: u64, k2: u64) -> SipHashKey {
-        SipHashKey {
-            k1: k1,
-            k2: k2
-        }
-    }
-
     fn new_random() -> SipHashKey {
         let mut rng = rand::task_rng();
         SipHashKey {
