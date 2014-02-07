@@ -13,12 +13,13 @@
 #[crate_type = "rlib"];
 #[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)];
 
+extern mod collections;
 extern mod extra;
 
 use std::num;
 use std::rand;
 use std::rand::Rng;
-use extra::bitv;
+use collections::bitv;
 
 struct SipHashKey {
     k1: u64,
