@@ -13,8 +13,8 @@
 #[crate_type = "rlib"];
 #[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)];
 
-extern mod collections;
-extern mod extra;
+extern crate collections;
+extern crate extra;
 
 use std::num;
 use std::rand;
