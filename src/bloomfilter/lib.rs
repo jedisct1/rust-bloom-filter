@@ -16,6 +16,7 @@
 extern crate collections;
 extern crate extra;
 
+use std::cmp;
 use std::num;
 use std::rand;
 use std::rand::Rng;
@@ -126,7 +127,7 @@ impl Bloom {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
         let k_num = (m / n * num::ln(2.0f64).ceil()) as uint;
-        num::max(k_num, 1)
+        cmp::max(k_num, 1)
     }
 
     fn bloom_hash<T: Hash>(&self, hashes: & mut [u64, ..2],
