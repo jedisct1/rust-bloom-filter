@@ -20,35 +20,20 @@ use std::cmp;
 use std::hash::Hash;
 use std::num;
 use std::rand;
-use std::hash::sip;
+use std::hash::sip::SipHasher;
+use std::hash::Hasher;
 use std::rand::Rng;
 use collections::bitv;
-
-struct SipHashKey {
-    k1: u64,
-    k2: u64
-}
-
-impl SipHashKey {
-    fn new_random() -> SipHashKey {
-        let mut rng = rand::task_rng();
-        SipHashKey {
-            k1: rand::Rand::rand(& mut rng),
-            k2: rand::Rand::rand(& mut rng)
-        }
-    }
-}
 
 /// Bloom filter structure
 pub struct Bloom {
     priv bitmap: bitv::Bitv,
     priv bitmap_bits: u64,
     priv k_num: uint,
-    priv skeys: [SipHashKey, ..2]
+    priv sips: [SipHasher, ..2]
 }
 
 impl Bloom {
-
 /// Create a new bloom filter structure.
 /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
 /// items_count is an estimation of the maximum number of items to store.
@@ -57,12 +42,12 @@ impl Bloom {
         let bitmap_bits = (bitmap_size as u64) * 8u64;
         let k_num = Bloom::optimal_k_num(bitmap_bits, items_count);
         let bitmap = bitv::Bitv::new(bitmap_bits as uint, false);
-        let skeys = [ SipHashKey::new_random(), SipHashKey::new_random() ];
+        let sips = [ Bloom::sip_new(), Bloom::sip_new() ];
         Bloom {
             bitmap: bitmap,
             bitmap_bits: bitmap_bits,
             k_num: k_num,
-            skeys: skeys
+            sips: sips
         }
     }
 
@@ -135,13 +120,19 @@ impl Bloom {
     fn bloom_hash<T: Hash>(&self, hashes: & mut [u64, ..2],
                   item: &T, k_i: uint) -> u64 {
         if k_i < 2 {
-            let skey = self.skeys[k_i];
-            let hash = sip::hash_with_keys(skey.k1, skey.k2, item);
+            let sip = self.sips[k_i];
+            let hash = sip.hash(item);
             hashes[k_i] = hash;
             hash
         } else {
             hashes[0] + (((k_i as u64) * hashes[1]) % 0xffffffffffffffc5)
         }
+    }
+
+    fn sip_new() -> SipHasher {
+        let mut rng = rand::task_rng();
+        SipHasher::new_with_keys(rand::Rand::rand(& mut rng),
+                                 rand::Rand::rand(& mut rng))
     }
 }
 
