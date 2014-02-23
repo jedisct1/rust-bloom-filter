@@ -17,8 +17,10 @@ extern crate collections;
 extern crate extra;
 
 use std::cmp;
+use std::hash::Hash;
 use std::num;
 use std::rand;
+use std::hash::sip;
 use std::rand::Rng;
 use collections::bitv;
 
@@ -134,7 +136,7 @@ impl Bloom {
                   item: &T, k_i: uint) -> u64 {
         if k_i < 2 {
             let skey = self.skeys[k_i];
-            let hash = (*item).hash_keyed(skey.k1, skey.k2);
+            let hash = sip::hash_with_keys(skey.k1, skey.k2, item);
             hashes[k_i] = hash;
             hash
         } else {
