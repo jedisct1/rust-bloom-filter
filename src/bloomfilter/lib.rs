@@ -22,8 +22,10 @@ use std::num;
 use std::rand;
 use std::hash::sip::SipHasher;
 use std::hash::Hasher;
-use std::rand::Rng;
 use collections::bitv;
+
+#[cfg(test)]
+use std::rand::Rng;
 
 /// Bloom filter structure
 pub struct Bloom {
