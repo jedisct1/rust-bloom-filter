@@ -15,11 +15,11 @@
 
 extern crate collections;
 extern crate extra;
+extern crate rand;
 
 use std::cmp;
 use std::hash::Hash;
 use std::num;
-use std::rand;
 use std::hash::sip::SipHasher;
 use std::hash::Hasher;
 use collections::bitv;
