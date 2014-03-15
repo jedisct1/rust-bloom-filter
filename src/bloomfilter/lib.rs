@@ -14,7 +14,6 @@
 #[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)];
 
 extern crate collections;
-extern crate extra;
 extern crate rand;
 
 use std::cmp;
@@ -25,7 +24,7 @@ use std::hash::Hasher;
 use collections::bitv;
 
 #[cfg(test)]
-use std::rand::Rng;
+use rand::Rng;
 
 /// Bloom filter structure
 pub struct Bloom {
