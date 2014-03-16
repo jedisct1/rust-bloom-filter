@@ -11,7 +11,7 @@
 #[license = "BSD"];
 #[crate_id="bloomfilter#0.1"];
 #[crate_type = "rlib"];
-#[warn(non_camel_case_types, non_uppercase_statics, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)];
+#[warn(non_camel_case_types, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)];
 
 extern crate collections;
 extern crate rand;
