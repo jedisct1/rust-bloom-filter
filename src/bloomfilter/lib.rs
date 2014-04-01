@@ -28,10 +28,10 @@ use rand::Rng;
 
 /// Bloom filter structure
 pub struct Bloom {
-    priv bitmap: bitv::Bitv,
-    priv bitmap_bits: u64,
-    priv k_num: uint,
-    priv sips: [SipHasher, ..2]
+    bitmap: bitv::Bitv,
+    bitmap_bits: u64,
+    k_num: uint,
+    sips: [SipHasher, ..2]
 }
 
 impl Bloom {
