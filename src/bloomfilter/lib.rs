@@ -66,9 +66,9 @@ impl Bloom {
     pub fn compute_bitmap_size(items_count: uint, fp_p: f64) -> uint {
         assert!(items_count > 0u);
         assert!(fp_p > 0.0 && fp_p < 1.0);
-        let log2 = f64::ln(2.0f64);
+        let log2 = f64::consts::LN_2;
         let log2_2 = log2 * log2;
-        ((items_count as f64) * f64::ln(fp_p) / (-8.0 * log2_2)).ceil() as uint
+        ((items_count as f64) * fp_p.ln() / (-8.0 * log2_2)).ceil() as uint
     }
 
 /// Record the presence of an item.
@@ -114,7 +114,7 @@ impl Bloom {
     fn optimal_k_num(bitmap_bits: u64, items_count: uint) -> uint {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
-        let k_num = (m / n * f64::ln(2.0f64).ceil()) as uint;
+        let k_num = (m / n * 2.0f64.ln()).ceil() as uint;
         cmp::max(k_num, 1)
     }
 
