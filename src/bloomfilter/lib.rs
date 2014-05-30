@@ -14,17 +14,17 @@
 #![warn(non_camel_case_types, non_uppercase_statics, unnecessary_qualification, managed_heap_memory)]
 
 extern crate collections;
-extern crate rand;
 
 use std::cmp;
 use std::f64;
 use std::hash::Hash;
 use std::hash::sip::SipHasher;
 use std::hash::Hasher;
+use std::rand;
 use collections::bitv;
 
 #[cfg(test)]
-use rand::Rng;
+use std::rand::Rng;
 
 /// Bloom filter structure
 pub struct Bloom {
@@ -140,7 +140,7 @@ impl Bloom {
 #[test]
 fn bloom_test_set() {
     let mut bloom = Bloom::new(10, 80);
-    let key = &rand::task_rng().gen_ascii_str(16u);
+    let key: &Vec<u8> = &rand::task_rng().gen_iter::<u8>().take(16u).collect();
     assert!(bloom.check(key) == false);
     bloom.set(&key);
     assert!(bloom.check(key.clone()) == true);
@@ -149,7 +149,7 @@ fn bloom_test_set() {
 #[test]
 fn bloom_test_check_and_set() {
     let mut bloom = Bloom::new(10, 80);
-    let key = &rand::task_rng().gen_ascii_str(16u);
+    let key: &Vec<u8> = &rand::task_rng().gen_iter::<u8>().take(16u).collect();
     assert!(bloom.check_and_set(key) == false);
     assert!(bloom.check_and_set(key.clone()) == true);
 }
