@@ -42,7 +42,7 @@ impl Bloom {
         assert!(bitmap_size > 0u && items_count > 0u);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
         let k_num = Bloom::optimal_k_num(bitmap_bits, items_count);
-        let bitmap = bitv::Bitv::new(bitmap_bits as uint, false);
+        let bitmap = bitv::Bitv::with_capacity(bitmap_bits as uint, false);
         let sips = [ Bloom::sip_new(), Bloom::sip_new() ];
         Bloom {
             bitmap: bitmap,
