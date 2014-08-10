@@ -1,0 +1,5 @@
+[package]
+
+name = "rust-bloom-filter"
+version = "0.0.1"
+authors = ["Frank Denis <github@pureftpd.org>"]
