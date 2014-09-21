@@ -3,6 +3,5 @@ rust-bloom-filter
 
 A fast Bloom filter implementation in Rust.
 
-Installation:
+Installation: use [Cargo](http://crates.io).
 
-    rustpkg install github.com/jedisct1/rust-bloom-filter
