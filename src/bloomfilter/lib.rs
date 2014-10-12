@@ -111,6 +111,16 @@ impl Bloom {
         found
     }
 
+/// Return the number of bits in the filter
+    pub fn number_of_bits(&self) -> u64 {
+        self.bitmap_bits
+    }
+
+/// Return the number of hash functions used for `check` and `set` 
+    pub fn number_of_hash_functions(&self) -> uint {
+        self.k_num
+    }
+
     fn optimal_k_num(bitmap_bits: u64, items_count: uint) -> uint {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
