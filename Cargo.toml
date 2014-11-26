@@ -5,6 +5,8 @@ version = "0.0.1"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter implementation"
 license = "ISC"
+homepage = "https://github.com/jedisct1/rust-bloom-filter"
+repository = "https://github.com/jedisct1/rust-bloom-filter"
 
 [lib]
 
