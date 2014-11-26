@@ -1,8 +1,10 @@
 [project]
 
-name = "rust-bloom-filter"
+name = "bloomfilter"
 version = "0.0.1"
 authors = ["Frank Denis <github@pureftpd.org>"]
+description = "Bloom filter implementation"
+license = "ISC"
 
 [lib]
 
