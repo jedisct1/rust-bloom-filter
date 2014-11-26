@@ -3,3 +3,4 @@
 .rust
 build
 Cargo.lock
+target
