@@ -7,8 +7,6 @@
  * 2 hash functions, generated with SipHash-2-4 using randomized keys.
  */
 
-#![desc = "A fast Bloom filter implementation."]
-#![license = "BSD"]
 #![crate_name="bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
