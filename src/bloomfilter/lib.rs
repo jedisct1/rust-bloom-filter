@@ -130,7 +130,7 @@ impl Bloom {
     fn bloom_hash<T: Hash>(&self, hashes: & mut [u64, ..2],
                   item: &T, k_i: uint) -> u64 {
         if k_i < 2 {
-            let sip = self.sips[k_i];
+            let sip = &self.sips[k_i];
             let hash = sip.hash(item);
             hashes[k_i] = hash;
             hash
