@@ -41,7 +41,7 @@ impl Bloom {
         assert!(bitmap_size > 0u && items_count > 0u);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
         let k_num = Bloom::optimal_k_num(bitmap_bits, items_count);
-        let bitmap = bitv::Bitv::with_capacity(bitmap_bits as uint, false);
+        let bitmap = bitv::Bitv::with_capacity(bitmap_bits as uint);
         let sips = [ Bloom::sip_new(), Bloom::sip_new() ];
         Bloom {
             bitmap: bitmap,
@@ -87,7 +87,7 @@ impl Bloom {
         for k_i in range(0u, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
                               % self.bitmap_bits) as uint;
-            if self.bitmap.get(bit_offset) == false {
+            if self.bitmap.get(bit_offset) == None {
                 return false;
             }
         }
@@ -102,7 +102,7 @@ impl Bloom {
         for k_i in range(0u, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
                               % self.bitmap_bits) as uint;
-            if self.bitmap.get(bit_offset) == false {
+            if self.bitmap.get(bit_offset) == None {
                 found = false;
                 self.bitmap.set(bit_offset, true);
             }
