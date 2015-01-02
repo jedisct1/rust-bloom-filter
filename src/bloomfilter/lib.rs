@@ -140,7 +140,7 @@ impl Bloom {
     }
 
     fn sip_new() -> SipHasher {
-        let mut rng = rand::task_rng();
+        let mut rng = rand::thread_rng();
         SipHasher::new_with_keys(rand::Rand::rand(& mut rng),
                                  rand::Rand::rand(& mut rng))
     }
