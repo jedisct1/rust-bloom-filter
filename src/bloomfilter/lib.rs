@@ -30,7 +30,7 @@ pub struct Bloom {
     bitmap: bitv::Bitv,
     bitmap_bits: u64,
     k_num: uint,
-    sips: [SipHasher, ..2]
+    sips: [SipHasher; 2]
 }
 
 impl Bloom {
@@ -127,7 +127,7 @@ impl Bloom {
         cmp::max(k_num, 1)
     }
 
-    fn bloom_hash<T: Hash>(&self, hashes: & mut [u64, ..2],
+    fn bloom_hash<T: Hash>(&self, hashes: & mut [u64; 2],
                   item: &T, k_i: uint) -> u64 {
         if k_i < 2 {
             let sip = &self.sips[k_i];
