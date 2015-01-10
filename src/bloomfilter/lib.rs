@@ -71,7 +71,7 @@ impl Bloom {
     }
 
 /// Record the presence of an item.
-    pub fn set<T>(& mut self, item: T) {
+    pub fn set<T, H>(& mut self, item: T) where T: Hash<H> {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in range(0, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -82,7 +82,7 @@ impl Bloom {
 
 /// Check if an item is present in the set.
 /// There can be false positives, but no false negatives.
-    pub fn check<T>(&self, item: T) -> bool {
+    pub fn check<T, H>(&self, item: T) -> bool where T: Hash<H> {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in range(0, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -96,7 +96,8 @@ impl Bloom {
 
 /// Record the presence of an item in the set,
 /// and return the previous state of this item.
-    pub fn check_and_set<T>(&mut self, item: T) -> bool {
+    pub fn check_and_set<T, H>(&mut self, item: T)
+                               -> bool where T: Hash<H> {
         let mut hashes = [ 0u64, 0u64 ];
         let mut found = true;
         for k_i in range(0, self.k_num) {
@@ -127,8 +128,8 @@ impl Bloom {
         cmp::max(k_num, 1)
     }
 
-    fn bloom_hash<T>(&self, hashes: & mut [u64; 2],
-                  item: &T, k_i: u32) -> u64 {
+    fn bloom_hash<T, H>(&self, hashes: & mut [u64; 2],
+                  item: &T, k_i: u32) -> u64 where T: Hash<H> {
         if k_i < 2 {
             let sip = &self.sips[k_i as usize];
             let hash = sip.hash(item);
