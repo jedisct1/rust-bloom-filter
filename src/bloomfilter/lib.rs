@@ -16,7 +16,7 @@ extern crate collections;
 
 use std::cmp;
 use std::f64;
-use std::hash::{Hasher, SipHasher, Writer};
+use std::hash::{Hash, Hasher, SipHasher};
 use std::num::Float;
 use std::rand;
 use collections::bitv;
@@ -70,7 +70,7 @@ impl Bloom {
     }
 
 /// Record the presence of an item.
-    pub fn set<T>(& mut self, item: T) where T: AsSlice<u8> {
+    pub fn set<T>(& mut self, item: T) where T: Hash<SipHasher> {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in range(0, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -81,7 +81,7 @@ impl Bloom {
 
 /// Check if an item is present in the set.
 /// There can be false positives, but no false negatives.
-    pub fn check<T>(&self, item: T) -> bool where T: AsSlice<u8> {
+    pub fn check<T>(&self, item: T) -> bool where T: Hash<SipHasher> {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in range(0, self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -96,7 +96,7 @@ impl Bloom {
 /// Record the presence of an item in the set,
 /// and return the previous state of this item.
     pub fn check_and_set<T>(&mut self, item: T)
-                               -> bool where T: AsSlice<u8> {
+                               -> bool where T: Hash<SipHasher> {
         let mut hashes = [ 0u64, 0u64 ];
         let mut found = true;
         for k_i in range(0, self.k_num) {
@@ -128,10 +128,10 @@ impl Bloom {
     }
 
     fn bloom_hash<T>(&self, hashes: & mut [u64; 2],
-                  item: &T, k_i: u32) -> u64 where T: AsSlice<u8> {
+                  item: &T, k_i: u32) -> u64 where T: Hash<SipHasher> {
         if k_i < 2 {
-            let mut sip = self.sips[k_i as usize].clone();
-            sip.write(item.as_slice());
+            let sip = &mut self.sips[k_i as usize].clone();
+            item.hash(sip);
             let hash = sip.finish();
             hashes[k_i as usize] = hash;
             hash
