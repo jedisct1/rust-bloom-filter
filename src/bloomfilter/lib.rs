@@ -10,15 +10,15 @@
 #![crate_name="bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
-#![feature(rand, core, hash, collections)]
+#![feature(core, hash, collections)]
 
 extern crate collections;
+extern crate rand;
 
 use std::cmp;
 use std::f64;
 use std::hash::{Hash, Hasher, SipHasher};
 use std::num::Float;
-use std::rand;
 use collections::bitv;
 
 #[cfg(test)]

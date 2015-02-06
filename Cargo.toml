@@ -1,5 +1,4 @@
 [project]
-
 name = "bloomfilter"
 version = "0.0.8"
 authors = ["Frank Denis <github@pureftpd.org>"]
@@ -9,6 +8,8 @@ homepage = "https://github.com/jedisct1/rust-bloom-filter"
 repository = "https://github.com/jedisct1/rust-bloom-filter"
 
 [lib]
-
 name = "bloomfilter"
 path = "src/bloomfilter/lib.rs"
+
+[dependencies.rand]
+rand = "*"
