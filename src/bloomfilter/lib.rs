@@ -22,7 +22,7 @@ use std::num::Float;
 use collections::bitv;
 
 #[cfg(test)]
-use std::rand::Rng;
+use rand::Rng;
 
 /// Bloom filter structure
 pub struct Bloom {
