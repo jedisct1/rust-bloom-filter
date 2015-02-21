@@ -70,7 +70,7 @@ impl Bloom {
     }
 
 /// Record the presence of an item.
-    pub fn set<T>(& mut self, item: T) where T: Hash<SipHasher> {
+    pub fn set<T>(& mut self, item: T) where T: Hash {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in (0..self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -81,7 +81,7 @@ impl Bloom {
 
 /// Check if an item is present in the set.
 /// There can be false positives, but no false negatives.
-    pub fn check<T>(&self, item: T) -> bool where T: Hash<SipHasher> {
+    pub fn check<T>(&self, item: T) -> bool where T: Hash {
         let mut hashes = [ 0u64, 0u64 ];
         for k_i in (0..self.k_num) {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
@@ -96,7 +96,7 @@ impl Bloom {
 /// Record the presence of an item in the set,
 /// and return the previous state of this item.
     pub fn check_and_set<T>(&mut self, item: T)
-                               -> bool where T: Hash<SipHasher> {
+                               -> bool where T: Hash {
         let mut hashes = [ 0u64, 0u64 ];
         let mut found = true;
         for k_i in (0..self.k_num) {
@@ -128,7 +128,7 @@ impl Bloom {
     }
 
     fn bloom_hash<T>(&self, hashes: & mut [u64; 2],
-                  item: &T, k_i: u32) -> u64 where T: Hash<SipHasher> {
+                  item: &T, k_i: u32) -> u64 where T: Hash {
         if k_i < 2 {
             let sip = &mut self.sips[k_i as usize].clone();
             item.hash(sip);
