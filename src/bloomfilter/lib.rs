@@ -10,7 +10,7 @@
 #![crate_name="bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
-#![feature(core, hash, collections)]
+#![feature(core, collections)]
 
 extern crate collections;
 extern crate rand;
