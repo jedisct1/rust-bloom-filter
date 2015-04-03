@@ -10,7 +10,7 @@
 #![crate_name="bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
-#![feature(core, collections)]
+#![feature(collections)]
 
 extern crate collections;
 extern crate rand;
@@ -18,15 +18,14 @@ extern crate rand;
 use std::cmp;
 use std::f64;
 use std::hash::{Hash, Hasher, SipHasher};
-use std::num::Float;
-use collections::bitv;
+use collections::BitVec;
 
 #[cfg(test)]
 use rand::Rng;
 
 /// Bloom filter structure
 pub struct Bloom {
-    bitmap: bitv::Bitv,
+    bitmap: BitVec,
     bitmap_bits: u64,
     k_num: u32,
     sips: [SipHasher; 2]
@@ -40,7 +39,7 @@ impl Bloom {
         assert!(bitmap_size > 0 && items_count > 0);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
         let k_num = Bloom::optimal_k_num(bitmap_bits, items_count);
-        let bitmap = bitv::Bitv::from_elem(bitmap_bits as usize, false);
+        let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
         let sips = [ Bloom::sip_new(), Bloom::sip_new() ];
         Bloom {
             bitmap: bitmap,
@@ -66,7 +65,7 @@ impl Bloom {
         assert!(fp_p > 0.0 && fp_p < 1.0);
         let log2 = f64::consts::LN_2;
         let log2_2 = log2 * log2;
-        ((items_count as f64) * Float::ln(fp_p) / (-8.0 * log2_2)).ceil() as usize
+        ((items_count as f64) * f64::ln(fp_p) / (-8.0 * log2_2)).ceil() as usize
     }
 
 /// Record the presence of an item.
@@ -123,7 +122,7 @@ impl Bloom {
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
-        let k_num = (m / n * Float::ln(2.0f64)).ceil() as u32;
+        let k_num = (m / n * f64::ln(2.0f64)).ceil() as u32;
         cmp::max(k_num, 1)
     }
 
