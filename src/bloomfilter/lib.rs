@@ -12,13 +12,12 @@
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 #![feature(collections)]
 
-extern crate collections;
 extern crate rand;
 
 use std::cmp;
 use std::f64;
 use std::hash::{Hash, Hasher, SipHasher};
-use collections::BitVec;
+use std::collections::BitVec;
 
 #[cfg(test)]
 use rand::Rng;
