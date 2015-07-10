@@ -10,14 +10,14 @@
 #![crate_name="bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
-#![feature(bitvec)]
 
 extern crate rand;
+extern crate bit_vec;
 
 use std::cmp;
 use std::f64;
 use std::hash::{Hash, Hasher, SipHasher};
-use std::collections::BitVec;
+use bit_vec::BitVec;
 
 #[cfg(test)]
 use rand::Rng;

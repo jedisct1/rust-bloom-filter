@@ -13,3 +13,6 @@ path = "src/bloomfilter/lib.rs"
 
 [dependencies.rand]
 rand = "*"
+
+[dependencies.bit-vec]
+bit-vec = "*"
