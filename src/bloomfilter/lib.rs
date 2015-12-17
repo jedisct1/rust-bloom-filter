@@ -113,7 +113,7 @@ impl Bloom {
         self.bitmap_bits
     }
 
-/// Return the number of hash functions used for `check` and `set` 
+/// Return the number of hash functions used for `check` and `set`
     pub fn number_of_hash_functions(&self) -> u32 {
         self.k_num
     }
@@ -138,6 +138,11 @@ impl Bloom {
         }
     }
 
+/// Clear all of the bits in the filter, removing all keys from the set
+    pub fn clear(&mut self) {
+        self.bitmap.clear()
+    }
+
     fn sip_new() -> SipHasher {
         let mut rng = rand::thread_rng();
         SipHasher::new_with_keys(rand::Rand::rand(& mut rng),
@@ -160,4 +165,14 @@ fn bloom_test_check_and_set() {
     let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
     assert!(bloom.check_and_set(key) == false);
     assert!(bloom.check_and_set(key.clone()) == true);
+}
+
+#[test]
+fn bloom_test_clear() {
+    let mut bloom = Bloom::new(10, 80);
+    let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    bloom.set(&key);
+    assert!(bloom.check(&key) == true);
+    bloom.clear();
+    assert!(bloom.check(&key) == false);
 }
