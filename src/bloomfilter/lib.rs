@@ -70,7 +70,7 @@ impl Bloom {
 /// Record the presence of an item.
     pub fn set<T>(& mut self, item: T) where T: Hash {
         let mut hashes = [ 0u64, 0u64 ];
-        for k_i in (0..self.k_num) {
+        for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
                               % self.bitmap_bits) as usize;
             self.bitmap.set(bit_offset, true);
@@ -81,7 +81,7 @@ impl Bloom {
 /// There can be false positives, but no false negatives.
     pub fn check<T>(&self, item: T) -> bool where T: Hash {
         let mut hashes = [ 0u64, 0u64 ];
-        for k_i in (0..self.k_num) {
+        for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
                               % self.bitmap_bits) as usize;
             if self.bitmap.get(bit_offset).unwrap() == false {
@@ -97,7 +97,7 @@ impl Bloom {
                                -> bool where T: Hash {
         let mut hashes = [ 0u64, 0u64 ];
         let mut found = true;
-        for k_i in (0..self.k_num) {
+        for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(& mut hashes, &item, k_i)
                               % self.bitmap_bits) as usize;
             if self.bitmap.get(bit_offset).unwrap() == false {
