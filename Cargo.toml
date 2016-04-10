@@ -12,7 +12,7 @@ name = "bloomfilter"
 path = "src/bloomfilter/lib.rs"
 
 [dependencies.rand]
-rand = "*"
+version = ">= 0.3.14"
 
 [dependencies.bit-vec]
-bit-vec = "*"
+version = ">= 0.4.3"
