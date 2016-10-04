@@ -1,6 +1,6 @@
 [project]
 name = "bloomfilter"
-version = "0.0.10"
+version = "0.0.11"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter implementation"
 license = "ISC"
@@ -11,8 +11,7 @@ repository = "https://github.com/jedisct1/rust-bloom-filter"
 name = "bloomfilter"
 path = "src/bloomfilter/lib.rs"
 
-[dependencies.rand]
-version = ">= 0.3.14"
-
-[dependencies.bit-vec]
-version = ">= 0.4.3"
+[dependencies]
+bit-vec = "~0.4"
+rand = "~0.3"
+siphasher = "~0.1"

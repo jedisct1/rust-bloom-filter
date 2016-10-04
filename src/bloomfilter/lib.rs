@@ -10,13 +10,15 @@
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 
-extern crate rand;
 extern crate bit_vec;
+extern crate rand;
+extern crate siphasher;
 
+use bit_vec::BitVec;
+use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::f64;
-use std::hash::{Hash, Hasher, SipHasher};
-use bit_vec::BitVec;
+use std::hash::{Hash, Hasher};
 
 #[cfg(test)]
 use rand::Rng;
@@ -26,7 +28,7 @@ pub struct Bloom {
     bitmap: BitVec,
     bitmap_bits: u64,
     k_num: u32,
-    sips: [SipHasher; 2],
+    sips: [SipHasher13; 2],
 }
 
 impl Bloom {
@@ -145,9 +147,9 @@ impl Bloom {
         self.bitmap.clear()
     }
 
-    fn sip_new() -> SipHasher {
+    fn sip_new() -> SipHasher13 {
         let mut rng = rand::thread_rng();
-        SipHasher::new_with_keys(rand::Rand::rand(&mut rng), rand::Rand::rand(&mut rng))
+        SipHasher13::new_with_keys(rand::Rand::rand(&mut rng), rand::Rand::rand(&mut rng))
     }
 }
 
