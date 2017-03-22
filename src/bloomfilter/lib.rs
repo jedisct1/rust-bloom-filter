@@ -3,7 +3,7 @@
 //! Bloom filter for Rust
 //!
 //! This is a simple but fast Bloom filter implementation, that requires only
-//! 2 hash functions, generated with SipHash-2-4 using randomized keys.
+//! 2 hash functions, generated with SipHash-1-3 using randomized keys.
 //!
 
 #![crate_name="bloomfilter"]
