@@ -57,6 +57,18 @@ impl Bloom {
         Bloom::new(bitmap_size, items_count)
     }
 
+    /// Create a bloom filter structure with an existing state.
+    /// The state is assumed to be retrieved from an existing bloom filter.
+    pub fn from_existing(bitmap: &[u8], bitmap_bits: u64, k_num: u32, sip_keys: [(u64, u64); 2]) -> Bloom {
+        let sips = [SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1), SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1)];
+        Bloom {
+            bitmap: BitVec::from_bytes(bitmap),
+            bitmap_bits: bitmap_bits,
+            k_num: k_num,
+            sips: sips,
+        }
+    }
+
     /// Compute a recommended bitmap size for items_count items
     /// and a fp_p rate of false positives.
     /// fp_p obviously has to be within the ]0.0, 1.0[ range.
@@ -114,6 +126,11 @@ impl Bloom {
         found
     }
 
+    /// Return the bitmap as a vector of bytes
+    pub fn bitmap(&self) -> Vec<u8> {
+        self.bitmap.to_bytes()
+    }
+
     /// Return the number of bits in the filter
     pub fn number_of_bits(&self) -> u64 {
         self.bitmap_bits
@@ -122,6 +139,11 @@ impl Bloom {
     /// Return the number of hash functions used for `check` and `set`
     pub fn number_of_hash_functions(&self) -> u32 {
         self.k_num
+    }
+
+    /// Return the keys used by the sip hasher
+    pub fn sip_keys(&self) -> [(u64, u64); 2] {
+        [self.sips[0].keys(), self.sips[1].keys()]
     }
 
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
@@ -182,4 +204,20 @@ fn bloom_test_clear() {
     assert!(bloom.check(&key) == true);
     bloom.clear();
     assert!(bloom.check(&key) == false);
+}
+
+#[test]
+fn bloom_test_load() {
+    let mut original = Bloom::new(10, 80);
+    let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    original.set(&key);
+    assert!(original.check(key.clone()) == true);
+
+    let cloned = Bloom::from_existing(
+        &original.bitmap(),
+        original.number_of_bits(),
+        original.number_of_hash_functions(),
+        original.sip_keys()
+    );
+    assert!(cloned.check(key.clone()) == true);
 }
