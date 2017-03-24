@@ -1,6 +1,6 @@
 [project]
 name = "bloomfilter"
-version = "0.0.11"
+version = "0.0.12"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter implementation"
 license = "ISC"
