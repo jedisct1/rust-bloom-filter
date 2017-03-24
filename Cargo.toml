@@ -12,6 +12,7 @@ name = "bloomfilter"
 path = "src/bloomfilter/lib.rs"
 
 [dependencies]
+clippy = {version = "~0", optional = true}
 bit-vec = "~0.4"
 rand = "~0.3"
 siphasher = "^0.2.2"
