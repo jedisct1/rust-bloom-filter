@@ -59,8 +59,16 @@ impl Bloom {
 
     /// Create a bloom filter structure with an existing state.
     /// The state is assumed to be retrieved from an existing bloom filter.
-    pub fn from_existing(bitmap: &[u8], bitmap_bits: u64, k_num: u32, sip_keys: [(u64, u64); 2]) -> Bloom {
-        let sips = [SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1), SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1)];
+    pub fn from_existing(
+        bitmap: &[u8],
+        bitmap_bits: u64,
+        k_num: u32,
+        sip_keys: [(u64, u64); 2],
+    ) -> Bloom {
+        let sips = [
+            SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1),
+            SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1),
+        ];
         Bloom {
             bitmap: BitVec::from_bytes(bitmap),
             bitmap_bits: bitmap_bits,
@@ -213,11 +221,9 @@ fn bloom_test_load() {
     original.set(&key);
     assert!(original.check(key.clone()) == true);
 
-    let cloned = Bloom::from_existing(
-        &original.bitmap(),
-        original.number_of_bits(),
-        original.number_of_hash_functions(),
-        original.sip_keys()
-    );
+    let cloned = Bloom::from_existing(&original.bitmap(),
+                                      original.number_of_bits(),
+                                      original.number_of_hash_functions(),
+                                      original.sip_keys());
     assert!(cloned.check(key.clone()) == true);
 }
