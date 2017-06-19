@@ -46,7 +46,6 @@ pub struct BloomState {
 }
 
 /// The configuration used to create a Bloom filter
-#[derive(Clone)]
 pub struct BloomHasher<T: Hash> {
     bitmap_bits: u64,
     k_num: u32,
@@ -253,6 +252,13 @@ impl<T: Hash> BloomHasher<T> {
 
     fn sip_keys(&self) -> [(u64, u64); 2] {
         [self.sips[0].keys(), self.sips[1].keys()]
+    }
+}
+
+impl<T: Hash> Clone for BloomHasher<T> {
+    fn clone(&self) -> Self {
+        BloomHasher::new(self.bitmap_bits, self.k_num, self.sips.clone())
+        // bitmap_bits: u64, k_num: u32, sips: [SipHasher13;2]
     }
 }
 
