@@ -84,7 +84,7 @@ impl<T: Hash> Bloom<T> {
 
     /// Create a bloom filter structure with an existing state.
     ///
-    /// `state` is assumed to be retrieved from an existing bloom filter.
+    /// state is assumed to be retrieved from an existing bloom filter.
     pub fn from_existing(
         bitmap: &[u8],
         bitmap_bits: u64,
