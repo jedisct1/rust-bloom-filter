@@ -140,10 +140,7 @@ impl<T: Hash> Bloom<T> {
     }
 
     /// Record the presence of an item.
-    pub fn set(&mut self, item: &T)
-    where
-        T: Hash,
-    {
+    pub fn set(&mut self, item: &T) {
         let offsets = self.make_offsets(item);
         self.set_offsets(&offsets);
     }
@@ -158,10 +155,7 @@ impl<T: Hash> Bloom<T> {
     /// Check if an item is present in the set.
     ///
     /// There can be false positives, but no false negatives.
-    pub fn check(&self, item: &T) -> bool
-    where
-        T: Hash,
-    {
+    pub fn check(&self, item: &T) -> bool {
         let offsets = self.make_offsets(item);
         self.check_offsets(&offsets)
     }
@@ -179,20 +173,13 @@ impl<T: Hash> Bloom<T> {
     }
 
     /// Construct offsets for use later with `set_offsets`/`check_offsets`
-    pub fn make_offsets(&self, item: &T)
-    -> Vec<usize>
-    where
-        T: Hash
-    {
+    pub fn make_offsets(&self, item: &T) -> Vec<usize> {
         self.config.make_offsets(item)
     }
 
     /// Record the presence of an item in the set,
     /// and return the previous state of this item.
-    pub fn check_and_set(&mut self, item: &T) -> bool
-    where
-        T: Hash,
-    {
+    pub fn check_and_set(&mut self, item: &T) -> bool {
         let offsets = self.make_offsets(item);
         if self.check_offsets(&offsets) {
             true
@@ -241,11 +228,7 @@ impl<T: Hash> BloomHasher<T> {
         }
     }
 
-    pub fn make_offsets(&self, item: &T)
-    -> Vec<usize>
-    where
-        T: Hash
-    {
+    pub fn make_offsets(&self, item: &T) -> Vec<usize> {
         let mut hashes = [0u64, 0u64];
         let mut ret = Vec::with_capacity(self.k_num as usize);
         for k_i in 0..self.k_num {
@@ -256,10 +239,7 @@ impl<T: Hash> BloomHasher<T> {
         ret
     }
 
-    fn bloom_hash(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
-    where
-        T: Hash,
-    {
+    fn bloom_hash(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64 {
         if k_i < 2 {
             let sip = &mut self.sips[k_i as usize].clone();
             item.hash(sip);
