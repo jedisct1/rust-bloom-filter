@@ -22,41 +22,45 @@ use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::f64;
 use std::hash::{Hash, Hasher};
+use std::marker::PhantomData;
 
 #[cfg(test)]
 use rand::Rng;
 
 /// Bloom filter structure
-pub struct Bloom {
+pub struct Bloom<T> {
     bitmap: BitVec,
     bitmap_bits: u64,
     k_num: u32,
     sips: [SipHasher13; 2],
+
+    _phantom: PhantomData<T>,
 }
 
-impl Bloom {
+impl<T> Bloom<T> {
     /// Create a new bloom filter structure.
     /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
     /// items_count is an estimation of the maximum number of items to store.
-    pub fn new(bitmap_size: usize, items_count: usize) -> Bloom {
+    pub fn new(bitmap_size: usize, items_count: usize) -> Self {
         assert!(bitmap_size > 0 && items_count > 0);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
-        let k_num = Bloom::optimal_k_num(bitmap_bits, items_count);
+        let k_num = Self::optimal_k_num(bitmap_bits, items_count);
         let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
-        let sips = [Bloom::sip_new(), Bloom::sip_new()];
-        Bloom {
+        let sips = [Self::sip_new(), Self::sip_new()];
+        Self {
             bitmap: bitmap,
             bitmap_bits: bitmap_bits,
             k_num: k_num,
             sips: sips,
+            _phantom: PhantomData,
         }
     }
 
     /// Create a new bloom filter structure.
     /// items_count is an estimation of the maximum number of items to store.
     /// fp_p is the wanted rate of false positives, in ]0.0, 1.0[
-    pub fn new_for_fp_rate(items_count: usize, fp_p: f64) -> Bloom {
-        let bitmap_size = Bloom::compute_bitmap_size(items_count, fp_p);
+    pub fn new_for_fp_rate(items_count: usize, fp_p: f64) -> Self {
+        let bitmap_size = Self::compute_bitmap_size(items_count, fp_p);
         Bloom::new(bitmap_size, items_count)
     }
 
@@ -67,16 +71,17 @@ impl Bloom {
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
-    ) -> Bloom {
+    ) -> Self {
         let sips = [
             SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1),
             SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1),
         ];
-        Bloom {
+        Self {
             bitmap: BitVec::from_bytes(bitmap),
             bitmap_bits: bitmap_bits,
             k_num: k_num,
             sips: sips,
+            _phantom: PhantomData,
         }
     }
 
@@ -92,7 +97,7 @@ impl Bloom {
     }
 
     /// Record the presence of an item.
-    pub fn set<T>(&mut self, item: T)
+    pub fn set(&mut self, item: &T)
     where
         T: Hash,
     {
@@ -105,7 +110,7 @@ impl Bloom {
 
     /// Check if an item is present in the set.
     /// There can be false positives, but no false negatives.
-    pub fn check<T>(&self, item: T) -> bool
+    pub fn check(&self, item: &T) -> bool
     where
         T: Hash,
     {
@@ -121,7 +126,7 @@ impl Bloom {
 
     /// Record the presence of an item in the set,
     /// and return the previous state of this item.
-    pub fn check_and_set<T>(&mut self, item: T) -> bool
+    pub fn check_and_set(&mut self, item: &T) -> bool
     where
         T: Hash,
     {
@@ -164,7 +169,7 @@ impl Bloom {
         cmp::max(k_num, 1)
     }
 
-    fn bloom_hash<T>(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
+    fn bloom_hash(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
     where
         T: Hash,
     {
@@ -196,21 +201,21 @@ fn bloom_test_set() {
     let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
     assert!(bloom.check(key) == false);
     bloom.set(&key);
-    assert!(bloom.check(key.clone()) == true);
+    assert!(bloom.check(key) == true);
 }
 
 #[test]
 fn bloom_test_check_and_set() {
     let mut bloom = Bloom::new(10, 80);
-    let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
-    assert!(bloom.check_and_set(key) == false);
-    assert!(bloom.check_and_set(key.clone()) == true);
+    let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    assert!(bloom.check_and_set(&key) == false);
+    assert!(bloom.check_and_set(&key) == true);
 }
 
 #[test]
 fn bloom_test_clear() {
     let mut bloom = Bloom::new(10, 80);
-    let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
     bloom.set(&key);
     assert!(bloom.check(&key) == true);
     bloom.clear();
@@ -220,13 +225,13 @@ fn bloom_test_clear() {
 #[test]
 fn bloom_test_load() {
     let mut original = Bloom::new(10, 80);
-    let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
     original.set(&key);
-    assert!(original.check(key.clone()) == true);
+    assert!(original.check(&key) == true);
 
     let cloned = Bloom::from_existing(&original.bitmap(),
                                       original.number_of_bits(),
                                       original.number_of_hash_functions(),
                                       original.sip_keys());
-    assert!(cloned.check(key.clone()) == true);
+    assert!(cloned.check(&key) == true);
 }
