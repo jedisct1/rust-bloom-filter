@@ -17,7 +17,7 @@ extern crate bit_vec;
 extern crate rand;
 extern crate siphasher;
 
-use bit_vec::BitVec;
+pub use bit_vec::BitVec;
 use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::f64;
@@ -67,7 +67,7 @@ impl<T> Bloom<T> {
     /// Create a bloom filter structure with an existing state.
     /// The state is assumed to be retrieved from an existing bloom filter.
     pub fn from_existing(
-        bitmap: &[u8],
+        bitmap: BitVec,
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
@@ -77,7 +77,7 @@ impl<T> Bloom<T> {
             SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1),
         ];
         Self {
-            bitmap: BitVec::from_bytes(bitmap),
+            bitmap: bitmap,
             bitmap_bits: bitmap_bits,
             k_num: k_num,
             sips: sips,
@@ -143,8 +143,8 @@ impl<T> Bloom<T> {
     }
 
     /// Return the bitmap as a vector of bytes
-    pub fn bitmap(&self) -> Vec<u8> {
-        self.bitmap.to_bytes()
+    pub fn bitmap(&self) -> &BitVec {
+        &self.bitmap
     }
 
     /// Return the number of bits in the filter
@@ -229,7 +229,7 @@ fn bloom_test_load() {
     original.set(&key);
     assert!(original.check(&key) == true);
 
-    let cloned = Bloom::from_existing(&original.bitmap(),
+    let cloned = Bloom::from_existing(original.bitmap.clone(),
                                       original.number_of_bits(),
                                       original.number_of_hash_functions(),
                                       original.sip_keys());
