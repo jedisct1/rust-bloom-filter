@@ -6,12 +6,9 @@
 //! 2 hash functions, generated with SipHash-1-3 using randomized keys.
 //!
 
-#![crate_name="bloomfilter"]
+#![crate_name = "bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
-
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
 
 extern crate bit_vec;
 extern crate rand;
@@ -48,10 +45,10 @@ impl<T> Bloom<T> {
         let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
         let sips = [Self::sip_new(), Self::sip_new()];
         Self {
-            bitmap: bitmap,
-            bitmap_bits: bitmap_bits,
-            k_num: k_num,
-            sips: sips,
+            bitmap,
+            bitmap_bits,
+            k_num,
+            sips,
             _phantom: PhantomData,
         }
     }
@@ -229,9 +226,11 @@ fn bloom_test_load() {
     original.set(&key);
     assert!(original.check(&key) == true);
 
-    let cloned = Bloom::from_existing(&original.bitmap(),
-                                      original.number_of_bits(),
-                                      original.number_of_hash_functions(),
-                                      original.sip_keys());
+    let cloned = Bloom::from_existing(
+        &original.bitmap(),
+        original.number_of_bits(),
+        original.number_of_hash_functions(),
+        original.sip_keys(),
+    );
     assert!(cloned.check(&key) == true);
 }
