@@ -197,17 +197,17 @@ impl<T> Bloom<T> {
 fn bloom_test_set() {
     let mut bloom = Bloom::new(10, 80);
     let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
-    assert!(bloom.check(key) == false);
+    assert_eq!(bloom.check(key), false);
     bloom.set(&key);
-    assert!(bloom.check(key) == true);
+    assert_eq!(bloom.check(key), true);
 }
 
 #[test]
 fn bloom_test_check_and_set() {
     let mut bloom = Bloom::new(10, 80);
     let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
-    assert!(bloom.check_and_set(&key) == false);
-    assert!(bloom.check_and_set(&key) == true);
+    assert_eq!(bloom.check_and_set(&key), false);
+    assert_eq!(bloom.check_and_set(&key), true);
 }
 
 #[test]
@@ -215,9 +215,9 @@ fn bloom_test_clear() {
     let mut bloom = Bloom::new(10, 80);
     let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
     bloom.set(&key);
-    assert!(bloom.check(&key) == true);
+    assert_eq!(bloom.check(&key), true);
     bloom.clear();
-    assert!(bloom.check(&key) == false);
+    assert_eq!(bloom.check(&key), false);
 }
 
 #[test]
@@ -225,7 +225,7 @@ fn bloom_test_load() {
     let mut original = Bloom::new(10, 80);
     let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
     original.set(&key);
-    assert!(original.check(&key) == true);
+    assert_eq!(original.check(&key), true);
 
     let cloned = Bloom::from_existing(
         &original.bitmap(),
@@ -233,5 +233,5 @@ fn bloom_test_load() {
         original.number_of_hash_functions(),
         original.sip_keys(),
     );
-    assert!(cloned.check(&key) == true);
+    assert_eq!(cloned.check(&key), true);
 }
