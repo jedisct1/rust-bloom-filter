@@ -75,9 +75,9 @@ impl<T> Bloom<T> {
         ];
         Self {
             bitmap: BitVec::from_bytes(bitmap),
-            bitmap_bits: bitmap_bits,
-            k_num: k_num,
-            sips: sips,
+            bitmap_bits,
+            k_num,
+            sips,
             _phantom: PhantomData,
         }
     }
@@ -114,7 +114,7 @@ impl<T> Bloom<T> {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            if self.bitmap.get(bit_offset).unwrap() == false {
+            if !self.bitmap.get(bit_offset).unwrap() {
                 return false;
             }
         }
@@ -131,7 +131,7 @@ impl<T> Bloom<T> {
         let mut found = true;
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            if self.bitmap.get(bit_offset).unwrap() == false {
+            if !self.bitmap.get(bit_offset).unwrap() {
                 found = false;
                 self.bitmap.set(bit_offset, true);
             }
@@ -171,13 +171,14 @@ impl<T> Bloom<T> {
         T: Hash,
     {
         if k_i < 2 {
+//            TODO this clone could be removed
             let sip = &mut self.sips[k_i as usize].clone();
             item.hash(sip);
             let hash = sip.finish();
             hashes[k_i as usize] = hash;
             hash
         } else {
-            hashes[0].wrapping_add((k_i as u64).wrapping_mul(hashes[1]) % 0xffffffffffffffc5)
+            hashes[0].wrapping_add(u64::from(k_i).wrapping_mul(hashes[1]) % 0xffff_ffff_ffff_ffc5)
         }
     }
 
