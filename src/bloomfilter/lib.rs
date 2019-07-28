@@ -13,6 +13,7 @@
 extern crate bit_vec;
 extern crate rand;
 extern crate siphasher;
+extern crate twox_hash;
 
 use bit_vec::BitVec;
 use siphasher::sip::SipHasher13;
@@ -20,6 +21,7 @@ use std::cmp;
 use std::f64;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
+use twox_hash::XxHash64;
 
 #[cfg(test)]
 use rand::Rng;
@@ -30,7 +32,7 @@ pub struct Bloom<T> {
     bitmap_bits: u64,
     k_num: u32,
     sips: [SipHasher13; 2],
-
+    xx: [XxHash64; 2],
     _phantom: PhantomData<T>,
 }
 
@@ -44,11 +46,13 @@ impl<T> Bloom<T> {
         let k_num = Self::optimal_k_num(bitmap_bits, items_count);
         let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
         let sips = [Self::sip_new(), Self::sip_new()];
+        let xx = [Self::xx_new(), Self::xx_new()];
         Self {
             bitmap,
             bitmap_bits,
             k_num,
             sips,
+            xx,
             _phantom: PhantomData,
         }
     }
@@ -68,6 +72,7 @@ impl<T> Bloom<T> {
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
+        xx: [XxHash64; 2]
     ) -> Self {
         let sips = [
             SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1),
@@ -78,6 +83,7 @@ impl<T> Bloom<T> {
             bitmap_bits,
             k_num,
             sips,
+            xx,
             _phantom: PhantomData,
         }
     }
@@ -100,7 +106,7 @@ impl<T> Bloom<T> {
     {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
-            let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
+            let bit_offset = (self.bloom_hash_xx(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
             self.bitmap.set(bit_offset, true);
         }
     }
@@ -113,7 +119,7 @@ impl<T> Bloom<T> {
     {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
-            let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
+            let bit_offset = (self.bloom_hash_xx(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
             if !self.bitmap.get(bit_offset).unwrap() {
                 return false;
             }
@@ -130,7 +136,7 @@ impl<T> Bloom<T> {
         let mut hashes = [0u64, 0u64];
         let mut found = true;
         for k_i in 0..self.k_num {
-            let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
+            let bit_offset = (self.bloom_hash_xx(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
             if !self.bitmap.get(bit_offset).unwrap() {
                 found = false;
                 self.bitmap.set(bit_offset, true);
@@ -166,6 +172,19 @@ impl<T> Bloom<T> {
         cmp::max(k_num, 1)
     }
 
+    fn bloom_hash_xx(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
+    where T: Hash, {
+        if k_i < 2 {
+            let mut xxhash = self.xx[k_i as usize];
+            item.hash(&mut xxhash);
+            let hash = xxhash.finish();
+            hashes[k_i as usize] = hash;
+            hash
+        } else {
+            hashes[0].wrapping_add(u64::from(k_i).wrapping_mul(hashes[1]) % 0xffff_ffff_ffff_ffc5)
+        }
+    }
+
     fn bloom_hash(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
     where
         T: Hash,
@@ -185,6 +204,11 @@ impl<T> Bloom<T> {
     /// Clear all of the bits in the filter, removing all keys from the set
     pub fn clear(&mut self) {
         self.bitmap.clear()
+    }
+
+    fn xx_new() -> XxHash64 {
+        let mut rng = rand::thread_rng();
+        XxHash64::with_seed(rand::Rand::rand(&mut rng))
     }
 
     fn sip_new() -> SipHasher13 {
@@ -232,6 +256,7 @@ fn bloom_test_load() {
         original.number_of_bits(),
         original.number_of_hash_functions(),
         original.sip_keys(),
+        original.xx
     );
     assert_eq!(cloned.check(&key), true);
 }
