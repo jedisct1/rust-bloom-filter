@@ -8,7 +8,6 @@
 
 #![crate_name = "bloomfilter"]
 #![crate_type = "rlib"]
-#![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 
 extern crate bit_vec;
 extern crate rand;
@@ -65,6 +64,27 @@ impl<T> Bloom<T> {
         Bloom::new(bitmap_size, items_count)
     }
 
+    pub fn from_existing_struct(other: &Bloom<T>) -> Self {
+        let sips = [
+            SipHasher13::new_with_keys(other.sip_keys()[0].0, other.sip_keys()[0].1),
+            SipHasher13::new_with_keys(other.sip_keys()[1].0, other.sip_keys()[1].1),
+        ];
+//        let xx = [
+//            XxHash64::with_seed(other.xx()[0].seed),
+//            XxHash64::with_seed(other.xx()[1].seed)
+//        ];
+        Self {
+            bitmap: BitVec::from_bytes(other.bitmap().as_slice()),
+            bitmap_bits: other.bitmap_bits,
+            k_num: other.k_num,
+            sips,
+            xx: other.xx(),
+            _phantom: PhantomData,
+        }
+
+    }
+
+
     /// Create a bloom filter structure with an existing state.
     /// The state is assumed to be retrieved from an existing bloom filter.
     pub fn from_existing(
@@ -72,7 +92,7 @@ impl<T> Bloom<T> {
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
-        xx: [XxHash64; 2]
+        xx: [XxHash64; 2],
     ) -> Self {
         let sips = [
             SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1),
@@ -99,10 +119,14 @@ impl<T> Bloom<T> {
         ((items_count as f64) * f64::ln(fp_p) / (-8.0 * log2_2)).ceil() as usize
     }
 
+//    fn bit_offset(&self) -> usize {
+//        (self.bloom_hash_xx(&mut hashes, &item, k_i) % self.bitmap_bits) as usize
+//    }
+
     /// Record the presence of an item.
     pub fn set(&mut self, item: &T)
-    where
-        T: Hash,
+        where
+            T: Hash,
     {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
@@ -114,13 +138,13 @@ impl<T> Bloom<T> {
     /// Check if an item is present in the set.
     /// There can be false positives, but no false negatives.
     pub fn check(&self, item: &T) -> bool
-    where
-        T: Hash,
+        where
+            T: Hash,
     {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash_xx(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            if !self.bitmap.get(bit_offset).unwrap() {
+            if !self.bitmap.get(bit_offset).unwrap_or_else(|| panic!("bit_offset {} not in bitmap!", bit_offset)) {
                 return false;
             }
         }
@@ -130,14 +154,14 @@ impl<T> Bloom<T> {
     /// Record the presence of an item in the set,
     /// and return the previous state of this item.
     pub fn check_and_set(&mut self, item: &T) -> bool
-    where
-        T: Hash,
+        where
+            T: Hash,
     {
         let mut hashes = [0u64, 0u64];
         let mut found = true;
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash_xx(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            if !self.bitmap.get(bit_offset).unwrap() {
+            if !self.bitmap.get(bit_offset).unwrap_or_else(|| panic!("bit_offset {} not in bitmap!", bit_offset)) {
                 found = false;
                 self.bitmap.set(bit_offset, true);
             }
@@ -165,6 +189,10 @@ impl<T> Bloom<T> {
         [self.sips[0].keys(), self.sips[1].keys()]
     }
 
+    pub fn xx(&self) -> [XxHash64; 2] {
+        self.xx
+    }
+
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
@@ -173,7 +201,7 @@ impl<T> Bloom<T> {
     }
 
     fn bloom_hash_xx(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
-    where T: Hash, {
+        where T: Hash, {
         if k_i < 2 {
             let mut xxhash = self.xx[k_i as usize];
             item.hash(&mut xxhash);
@@ -185,14 +213,14 @@ impl<T> Bloom<T> {
         }
     }
 
-    fn bloom_hash(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
-    where
-        T: Hash,
+    fn bloom_hash_sip(&self, hashes: &mut [u64; 2], item: &T, k_i: u32) -> u64
+        where
+            T: Hash,
     {
         if k_i < 2 {
 //            TODO this clone could be removed
-            let sip = &mut self.sips[k_i as usize].clone();
-            item.hash(sip);
+            let mut sip = self.sips[k_i as usize];
+            item.hash(&mut sip);
             let hash = sip.finish();
             hashes[k_i as usize] = hash;
             hash
@@ -256,7 +284,7 @@ fn bloom_test_load() {
         original.number_of_bits(),
         original.number_of_hash_functions(),
         original.sip_keys(),
-        original.xx
+        original.xx(),
     );
     assert_eq!(cloned.check(&key), true);
 }
