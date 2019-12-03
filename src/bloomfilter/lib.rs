@@ -1,4 +1,4 @@
-// (C)opyleft 2013-2017 Frank Denis
+// (C)opyleft 2013-2019 Frank Denis
 
 //! Bloom filter for Rust
 //!
@@ -15,6 +15,7 @@ extern crate rand;
 extern crate siphasher;
 
 use bit_vec::BitVec;
+use rand::prelude::*;
 use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::f64;
@@ -187,32 +188,38 @@ impl<T> Bloom<T> {
     }
 
     fn sip_new() -> SipHasher13 {
-        let mut rng = rand::thread_rng();
-        SipHasher13::new_with_keys(rand::Rand::rand(&mut rng), rand::Rand::rand(&mut rng))
+        let mut rng = thread_rng();
+        SipHasher13::new_with_keys(rng.gen(), rng.gen())
     }
 }
 
 #[test]
 fn bloom_test_set() {
+    let mut rng = thread_rng();
     let mut bloom = Bloom::new(10, 80);
-    let key: &Vec<u8> = &rand::thread_rng().gen_iter::<u8>().take(16).collect();
-    assert!(bloom.check(key) == false);
+    let mut key = vec![0u8, 16];
+    rng.fill_bytes(&mut key);
+    assert!(bloom.check(&key) == false);
     bloom.set(&key);
-    assert!(bloom.check(key) == true);
+    assert!(bloom.check(&key) == true);
 }
 
 #[test]
 fn bloom_test_check_and_set() {
+    let mut rng = thread_rng();
     let mut bloom = Bloom::new(10, 80);
-    let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    let mut key = vec![0u8, 16];
+    rng.fill_bytes(&mut key);
     assert!(bloom.check_and_set(&key) == false);
     assert!(bloom.check_and_set(&key) == true);
 }
 
 #[test]
 fn bloom_test_clear() {
+    let mut rng = thread_rng();
     let mut bloom = Bloom::new(10, 80);
-    let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    let mut key = vec![0u8, 16];
+    rng.fill_bytes(&mut key);
     bloom.set(&key);
     assert!(bloom.check(&key) == true);
     bloom.clear();
@@ -221,8 +228,10 @@ fn bloom_test_clear() {
 
 #[test]
 fn bloom_test_load() {
+    let mut rng = thread_rng();
     let mut original = Bloom::new(10, 80);
-    let key: Vec<u8> = rand::thread_rng().gen_iter::<u8>().take(16).collect();
+    let mut key = vec![0u8, 16];
+    rng.fill_bytes(&mut key);
     original.set(&key);
     assert!(original.check(&key) == true);
 
