@@ -9,7 +9,7 @@
 #![crate_name = "bloomfilter"]
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
-
+#![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 extern crate bit_vec;
 extern crate rand;
 extern crate siphasher;
@@ -76,9 +76,9 @@ impl<T> Bloom<T> {
         ];
         Self {
             bitmap: BitVec::from_bytes(bitmap),
-            bitmap_bits: bitmap_bits,
-            k_num: k_num,
-            sips: sips,
+            bitmap_bits,
+            k_num,
+            sips,
             _phantom: PhantomData,
         }
     }
