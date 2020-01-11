@@ -26,7 +26,7 @@ use std::marker::PhantomData;
 use rand::Rng;
 
 /// Bloom filter structure
-pub struct Bloom<T> {
+pub struct Bloom<T: ?Sized> {
     bitmap: BitVec,
     bitmap_bits: u64,
     k_num: u32,
@@ -35,7 +35,7 @@ pub struct Bloom<T> {
     _phantom: PhantomData<T>,
 }
 
-impl<T> Bloom<T> {
+impl<T: ?Sized> Bloom<T> {
     /// Create a new bloom filter structure.
     /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
     /// items_count is an estimation of the maximum number of items to store.
