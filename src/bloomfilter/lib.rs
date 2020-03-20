@@ -27,7 +27,7 @@ use std::marker::PhantomData;
 use rand::Rng;
 
 /// Bloom filter structure
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Bloom<T: ?Sized> {
     bitmap: BitVec,
@@ -262,5 +262,7 @@ fn bloom_test_serde() {
     let deserialized: Bloom<Vec<u8>> = serde_json::from_str(&serialized).unwrap();
 
     assert!(deserialized.check(&key) == true);
-    assert_eq!(original, deserialized);
+
+    // PartialEq or Eq not implemented yet for Bloom
+    // assert_eq!(original, deserialized);
 }
