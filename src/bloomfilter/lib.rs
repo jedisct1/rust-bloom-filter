@@ -178,7 +178,8 @@ impl<T: ?Sized> Bloom<T> {
             hashes[k_i as usize] = hash;
             hash
         } else {
-            hashes[0].wrapping_add((k_i as u64).wrapping_mul(hashes[1]) % 0xffffffffffffffc5)
+            ((hashes[0] as u128) + ((k_i as u128) * (hashes[1] as u128)) % 0xffffffffffffffc5)
+                as u64
         }
     }
 
