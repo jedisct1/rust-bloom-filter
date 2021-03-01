@@ -15,4 +15,8 @@ path = "src/bloomfilter/lib.rs"
 [dependencies]
 bit-vec = "0.6"
 rand = "0.8"
-siphasher = "0.3"
+siphasher = { version = "0.3.2" }
+
+[features]
+defaults = []
+serde = ["siphasher/serde_std", "bit-vec/serde"]
