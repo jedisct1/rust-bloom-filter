@@ -10,9 +10,6 @@
 #![crate_type = "rlib"]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
-extern crate bit_vec;
-extern crate rand;
-extern crate siphasher;
 
 use bit_vec::BitVec;
 use rand::prelude::*;
