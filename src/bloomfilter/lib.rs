@@ -24,6 +24,7 @@ use rand::Rng;
 
 /// Bloom filter structure
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug)]
 pub struct Bloom<T: ?Sized> {
     bitmap: BitVec,
     bitmap_bits: u64,
