@@ -23,7 +23,7 @@ use std::marker::PhantomData;
 use rand::Rng;
 
 /// Bloom filter structure
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde-enable", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Bloom<T: ?Sized> {
     bitmap: BitVec,
@@ -244,7 +244,8 @@ fn bloom_test_load() {
     assert!(cloned.check(&key) == true);
 }
 
-#[cfg(feature = "serde")]
+#[cfg(feature = "serde-enable")]
+#[test]
 fn bloom_test_serde() {
     let mut rng = thread_rng();
     let mut original = Bloom::new(10, 80);
