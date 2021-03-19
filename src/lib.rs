@@ -1,4 +1,4 @@
-// (C)opyleft 2013-2019 Frank Denis
+// (C)opyleft 2013-2021 Frank Denis
 
 //! Bloom filter for Rust
 //!
