@@ -8,15 +8,11 @@ homepage = "https://github.com/jedisct1/rust-bloom-filter"
 repository = "https://github.com/jedisct1/rust-bloom-filter"
 edition = "2018"
 
-[lib]
-name = "bloomfilter"
-path = "src/bloomfilter/lib.rs"
-
 [dependencies]
-bit-vec = "0.6"
-rand = "0.8"
-siphasher = { version = "0.3.2" }
+bit-vec = "0.6.3"
+rand = "0.8.3"
+siphasher = "0.3.5"
 
 [features]
-defaults = []
+defaults = ["serde"]
 serde = ["siphasher/serde_std", "bit-vec/serde"]
