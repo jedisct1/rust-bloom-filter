@@ -10,7 +10,10 @@
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 
 use bit_vec::BitVec;
+
+#[cfg(any(test, feature = "random"))]
 use rand::prelude::*;
+
 use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::f64;
@@ -37,6 +40,7 @@ pub struct Bloom<T: ?Sized> {
 }
 
 impl<T: ?Sized> Bloom<T> {
+    #[cfg(any(test, feature = "random"))]
     /// Create a new bloom filter structure.
     /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
     /// items_count is an estimation of the maximum number of items to store.
@@ -55,12 +59,42 @@ impl<T: ?Sized> Bloom<T> {
         }
     }
 
+    #[cfg(any(test, feature = "random"))]
     /// Create a new bloom filter structure.
     /// items_count is an estimation of the maximum number of items to store.
     /// fp_p is the wanted rate of false positives, in ]0.0, 1.0[
     pub fn new_for_fp_rate(items_count: usize, fp_p: f64) -> Self {
         let bitmap_size = Self::compute_bitmap_size(items_count, fp_p);
         Bloom::new(bitmap_size, items_count)
+    }
+
+    /// Create a new bloom filter structure with manually initialized sip hashers.
+    /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
+    /// items_count is an estimation of the maximum number of items to store.
+    pub fn with_init(bitmap_size: usize, items_count: usize, sip_keys: [(u64, u64); 2]) -> Self {
+        assert!(bitmap_size > 0 && items_count > 0);
+        let bitmap_bits = (bitmap_size as u64) * 8u64;
+        let k_num = Self::optimal_k_num(bitmap_bits, items_count);
+        let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
+        let sips = [
+            SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1),
+            SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1),
+        ];
+        Self {
+            bitmap,
+            bitmap_bits,
+            k_num,
+            sips,
+            _phantom: PhantomData,
+        }
+    }
+
+    /// Create a new bloom filter structure with manually initialized sip hashers.
+    /// items_count is an estimation of the maximum number of items to store.
+    /// fp_p is the wanted rate of false positives, in ]0.0, 1.0[
+    pub fn with_init_for_fp_rate(items_count: usize, fp_p: f64, sip_keys: [(u64, u64); 2]) -> Self {
+        let bitmap_size = Self::compute_bitmap_size(items_count, fp_p);
+        Bloom::with_init(bitmap_size, items_count, sip_keys)
     }
 
     /// Create a bloom filter structure with an existing state.
@@ -189,6 +223,7 @@ impl<T: ?Sized> Bloom<T> {
         self.bitmap.clear()
     }
 
+    #[cfg(any(test, feature = "random"))]
     fn sip_new() -> SipHasher13 {
         let mut rng = thread_rng();
         SipHasher13::new_with_keys(rng.gen(), rng.gen())
