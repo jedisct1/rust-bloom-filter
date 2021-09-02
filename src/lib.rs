@@ -121,7 +121,7 @@ impl<T: ?Sized> Bloom<T> {
     {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
-            let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
+            let bit_offset = (self.bloom_hash(&mut hashes, item, k_i) % self.bitmap_bits) as usize;
             self.bit_vec.set(bit_offset, true);
         }
     }
@@ -134,7 +134,7 @@ impl<T: ?Sized> Bloom<T> {
     {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
-            let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
+            let bit_offset = (self.bloom_hash(&mut hashes, item, k_i) % self.bitmap_bits) as usize;
             if self.bit_vec.get(bit_offset).unwrap() == false {
                 return false;
             }
@@ -151,7 +151,7 @@ impl<T: ?Sized> Bloom<T> {
         let mut hashes = [0u64, 0u64];
         let mut found = true;
         for k_i in 0..self.k_num {
-            let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
+            let bit_offset = (self.bloom_hash(&mut hashes, item, k_i) % self.bitmap_bits) as usize;
             if self.bit_vec.get(bit_offset).unwrap() == false {
                 found = false;
                 self.bit_vec.set(bit_offset, true);
