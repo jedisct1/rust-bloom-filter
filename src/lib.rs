@@ -23,12 +23,20 @@ use siphasher::reexports::serde;
 #[cfg(test)]
 use rand::Rng;
 
+pub mod reexports {
+    pub use bit_vec;
+    pub use rand;
+    #[cfg(feature = "serde")]
+    pub use serde;
+    pub use siphasher;
+}
+
 /// Bloom filter structure
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(crate = "serde"))]
 #[derive(Clone, Debug)]
 pub struct Bloom<T: ?Sized> {
-    bitmap: BitVec,
+    bit_vec: BitVec,
     bitmap_bits: u64,
     k_num: u32,
     sips: [SipHasher13; 2],
@@ -47,7 +55,7 @@ impl<T: ?Sized> Bloom<T> {
         let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
         let sips = [Self::sip_new(), Self::sip_new()];
         Self {
-            bitmap,
+            bit_vec: bitmap,
             bitmap_bits,
             k_num,
             sips,
@@ -63,10 +71,10 @@ impl<T: ?Sized> Bloom<T> {
         Bloom::new(bitmap_size, items_count)
     }
 
-    /// Create a bloom filter structure with an existing state.
+    /// Create a bloom filter structure from a previous state given as a `ByteVec` structure.
     /// The state is assumed to be retrieved from an existing bloom filter.
-    pub fn from_existing(
-        bitmap: &[u8],
+    pub fn from_bit_vec(
+        bit_vec: BitVec,
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
@@ -76,12 +84,23 @@ impl<T: ?Sized> Bloom<T> {
             SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1),
         ];
         Self {
-            bitmap: BitVec::from_bytes(bitmap),
+            bit_vec,
             bitmap_bits,
             k_num,
             sips,
             _phantom: PhantomData,
         }
+    }
+
+    /// Create a bloom filter structure with an existing state given as a byte array.
+    /// The state is assumed to be retrieved from an existing bloom filter.
+    pub fn from_existing(
+        bytes: &[u8],
+        bitmap_bits: u64,
+        k_num: u32,
+        sip_keys: [(u64, u64); 2],
+    ) -> Self {
+        Self::from_bit_vec(BitVec::from_bytes(bytes), bitmap_bits, k_num, sip_keys)
     }
 
     /// Compute a recommended bitmap size for items_count items
@@ -103,7 +122,7 @@ impl<T: ?Sized> Bloom<T> {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            self.bitmap.set(bit_offset, true);
+            self.bit_vec.set(bit_offset, true);
         }
     }
 
@@ -116,7 +135,7 @@ impl<T: ?Sized> Bloom<T> {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            if self.bitmap.get(bit_offset).unwrap() == false {
+            if self.bit_vec.get(bit_offset).unwrap() == false {
                 return false;
             }
         }
@@ -133,9 +152,9 @@ impl<T: ?Sized> Bloom<T> {
         let mut found = true;
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(&mut hashes, &item, k_i) % self.bitmap_bits) as usize;
-            if self.bitmap.get(bit_offset).unwrap() == false {
+            if self.bit_vec.get(bit_offset).unwrap() == false {
                 found = false;
-                self.bitmap.set(bit_offset, true);
+                self.bit_vec.set(bit_offset, true);
             }
         }
         found
@@ -143,7 +162,12 @@ impl<T: ?Sized> Bloom<T> {
 
     /// Return the bitmap as a vector of bytes
     pub fn bitmap(&self) -> Vec<u8> {
-        self.bitmap.to_bytes()
+        self.bit_vec.to_bytes()
+    }
+
+    /// Return the bitmap as a "BitVec" structure
+    pub fn bit_vec(&self) -> &BitVec {
+        &self.bit_vec
     }
 
     /// Return the number of bits in the filter
@@ -186,7 +210,7 @@ impl<T: ?Sized> Bloom<T> {
 
     /// Clear all of the bits in the filter, removing all keys from the set
     pub fn clear(&mut self) {
-        self.bitmap.clear()
+        self.bit_vec.clear()
     }
 
     fn sip_new() -> SipHasher13 {
