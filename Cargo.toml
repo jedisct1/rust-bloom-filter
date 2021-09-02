@@ -10,8 +10,8 @@ edition = "2018"
 
 [dependencies]
 bit-vec = "0.6.3"
-rand = "0.8.4"
-siphasher = "0.3.6"
+getrandom = "0.2.3"
+siphasher = "0.3.7"
 
 [features]
 defaults = []

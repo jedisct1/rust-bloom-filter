@@ -10,7 +10,7 @@
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 
 use bit_vec::BitVec;
-use rand::prelude::*;
+use getrandom::getrandom;
 use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::f64;
@@ -20,12 +20,9 @@ use std::marker::PhantomData;
 #[cfg(feature = "serde")]
 use siphasher::reexports::serde;
 
-#[cfg(test)]
-use rand::Rng;
-
 pub mod reexports {
+    pub use ::getrandom;
     pub use bit_vec;
-    pub use rand;
     #[cfg(feature = "serde")]
     pub use serde;
     pub use siphasher;
@@ -214,52 +211,49 @@ impl<T: ?Sized> Bloom<T> {
     }
 
     fn sip_new() -> SipHasher13 {
-        let mut rng = thread_rng();
-        SipHasher13::new_with_keys(rng.gen(), rng.gen())
+        let mut key = [0u8; 16];
+        getrandom(&mut key).unwrap();
+        SipHasher13::new_with_key(&key)
     }
 }
 
 #[test]
 fn bloom_test_set() {
-    let mut rng = thread_rng();
     let mut bloom = Bloom::new(10, 80);
-    let mut key = vec![0u8, 16];
-    rng.fill_bytes(&mut key);
-    assert!(bloom.check(&key) == false);
-    bloom.set(&key);
-    assert!(bloom.check(&key) == true);
+    let mut k = vec![0u8, 16];
+    getrandom(&mut k).unwrap();
+    assert!(bloom.check(&k) == false);
+    bloom.set(&k);
+    assert!(bloom.check(&k) == true);
 }
 
 #[test]
 fn bloom_test_check_and_set() {
-    let mut rng = thread_rng();
     let mut bloom = Bloom::new(10, 80);
-    let mut key = vec![0u8, 16];
-    rng.fill_bytes(&mut key);
-    assert!(bloom.check_and_set(&key) == false);
-    assert!(bloom.check_and_set(&key) == true);
+    let mut k = vec![0u8, 16];
+    getrandom(&mut k).unwrap();
+    assert!(bloom.check_and_set(&k) == false);
+    assert!(bloom.check_and_set(&k) == true);
 }
 
 #[test]
 fn bloom_test_clear() {
-    let mut rng = thread_rng();
     let mut bloom = Bloom::new(10, 80);
-    let mut key = vec![0u8, 16];
-    rng.fill_bytes(&mut key);
-    bloom.set(&key);
-    assert!(bloom.check(&key) == true);
+    let mut k = vec![0u8, 16];
+    getrandom(&mut k).unwrap();
+    bloom.set(&k);
+    assert!(bloom.check(&k) == true);
     bloom.clear();
-    assert!(bloom.check(&key) == false);
+    assert!(bloom.check(&k) == false);
 }
 
 #[test]
 fn bloom_test_load() {
-    let mut rng = thread_rng();
     let mut original = Bloom::new(10, 80);
-    let mut key = vec![0u8, 16];
-    rng.fill_bytes(&mut key);
-    original.set(&key);
-    assert!(original.check(&key) == true);
+    let mut k = vec![0u8, 16];
+    getrandom(&mut k).unwrap();
+    original.set(&k);
+    assert!(original.check(&k) == true);
 
     let cloned = Bloom::from_existing(
         &original.bitmap(),
@@ -267,5 +261,5 @@ fn bloom_test_load() {
         original.number_of_hash_functions(),
         original.sip_keys(),
     );
-    assert!(cloned.check(&key) == true);
+    assert!(cloned.check(&k) == true);
 }
