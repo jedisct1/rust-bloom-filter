@@ -10,6 +10,7 @@
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 
 use bit_vec::BitVec;
+#[cfg(feature = "random")]
 use getrandom::getrandom;
 use siphasher::sip::SipHasher13;
 use std::cmp;
@@ -21,6 +22,7 @@ use std::marker::PhantomData;
 use siphasher::reexports::serde;
 
 pub mod reexports {
+    #[cfg(feature = "random")]
     pub use ::getrandom;
     pub use bit_vec;
     #[cfg(feature = "serde")]
@@ -45,12 +47,17 @@ impl<T: ?Sized> Bloom<T> {
     /// Create a new bloom filter structure.
     /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
     /// items_count is an estimation of the maximum number of items to store.
-    pub fn new(bitmap_size: usize, items_count: usize) -> Self {
+    /// seed is a random value used to generate the hash functions.
+    pub fn new_with_seed(bitmap_size: usize, items_count: usize, seed: &[u8; 32]) -> Self {
         assert!(bitmap_size > 0 && items_count > 0);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
         let k_num = Self::optimal_k_num(bitmap_bits, items_count);
         let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
-        let sips = [Self::sip_new(), Self::sip_new()];
+        let mut k1 = [0u8; 16];
+        let mut k2 = [0u8; 16];
+        k1.copy_from_slice(&seed[0..16]);
+        k2.copy_from_slice(&seed[16..32]);
+        let sips = [Self::sip_new(&k1), Self::sip_new(&k2)];
         Self {
             bit_vec: bitmap,
             bitmap_bits,
@@ -61,11 +68,30 @@ impl<T: ?Sized> Bloom<T> {
     }
 
     /// Create a new bloom filter structure.
+    /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
+    /// items_count is an estimation of the maximum number of items to store.
+    #[cfg(feature = "random")]
+    pub fn new(bitmap_size: usize, items_count: usize) -> Self {
+        let mut seed = [0u8; 32];
+        getrandom(&mut seed).unwrap();
+        Self::new_with_seed(bitmap_size, items_count, &seed)
+    }
+
+    /// Create a new bloom filter structure.
     /// items_count is an estimation of the maximum number of items to store.
     /// fp_p is the wanted rate of false positives, in ]0.0, 1.0[
+    #[cfg(feature = "random")]
     pub fn new_for_fp_rate(items_count: usize, fp_p: f64) -> Self {
         let bitmap_size = Self::compute_bitmap_size(items_count, fp_p);
         Bloom::new(bitmap_size, items_count)
+    }
+
+    /// Create a new bloom filter structure.
+    /// items_count is an estimation of the maximum number of items to store.
+    /// fp_p is the wanted rate of false positives, in ]0.0, 1.0[
+    pub fn new_for_fp_rate_with_seed(items_count: usize, fp_p: f64, seed: &[u8; 32]) -> Self {
+        let bitmap_size = Self::compute_bitmap_size(items_count, fp_p);
+        Bloom::new_with_seed(bitmap_size, items_count, seed)
     }
 
     /// Create a bloom filter structure from a previous state given as a `ByteVec` structure.
@@ -182,6 +208,7 @@ impl<T: ?Sized> Bloom<T> {
         [self.sips[0].keys(), self.sips[1].keys()]
     }
 
+    #[allow(dead_code)]
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
@@ -210,14 +237,14 @@ impl<T: ?Sized> Bloom<T> {
         self.bit_vec.clear()
     }
 
-    fn sip_new() -> SipHasher13 {
-        let mut key = [0u8; 16];
-        getrandom(&mut key).unwrap();
-        SipHasher13::new_with_key(&key)
+    #[inline]
+    fn sip_new(key: &[u8; 16]) -> SipHasher13 {
+        SipHasher13::new_with_key(key)
     }
 }
 
 #[test]
+#[cfg(feature = "random")]
 fn bloom_test_set() {
     let mut bloom = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
@@ -228,6 +255,7 @@ fn bloom_test_set() {
 }
 
 #[test]
+#[cfg(feature = "random")]
 fn bloom_test_check_and_set() {
     let mut bloom = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
@@ -237,6 +265,7 @@ fn bloom_test_check_and_set() {
 }
 
 #[test]
+#[cfg(feature = "random")]
 fn bloom_test_clear() {
     let mut bloom = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
@@ -248,6 +277,7 @@ fn bloom_test_clear() {
 }
 
 #[test]
+#[cfg(feature = "random")]
 fn bloom_test_load() {
     let mut original = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
