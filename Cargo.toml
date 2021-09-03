@@ -14,6 +14,6 @@ getrandom = { version = "0.2.3", optional = true }
 siphasher = "0.3.7"
 
 [features]
-defaults = ["random"]
+default = ["random"]
 random = ["getrandom"]
 serde = ["siphasher/serde_std", "bit-vec/serde"]
