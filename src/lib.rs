@@ -26,7 +26,7 @@ pub mod reexports {
     pub use ::getrandom;
     pub use bit_vec;
     #[cfg(feature = "serde")]
-    pub use serde;
+    pub use siphasher::reexports::serde;
     pub use siphasher;
 }
 
