@@ -26,9 +26,9 @@ pub mod reexports {
     #[cfg(feature = "random")]
     pub use ::getrandom;
     pub use bit_vec;
+    pub use siphasher;
     #[cfg(feature = "serde")]
     pub use siphasher::reexports::serde;
-    pub use siphasher;
 }
 
 /// Bloom filter structure
