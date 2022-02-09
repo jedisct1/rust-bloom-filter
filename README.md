@@ -1,4 +1,4 @@
-# bloomfilter
+# bloomfilter <img src="img/logo.png" align="right" width="120" />
 [![Crates.io](https://img.shields.io/crates/v/bloomfilter.svg)](https://crates.io/crates/bloomfilter)
 <a href="https://github.com/jedisct1/rust-bloom-filter/actions?query=workflow%3A%22Continuous+Integration%22">
     <img src="https://img.shields.io/github/workflow/status/jedisct1/rust-bloom-filter/Continuous%20Integration?style=flat&logo=GitHub%20Actions">
