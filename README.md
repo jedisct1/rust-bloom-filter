@@ -16,14 +16,14 @@ Library documentation with examples is available on [docs.rs](https://docs.rs/bl
 
 Add this to your `Cargo.toml`:
 
-```
+```toml
 [dependencies]
-regex = "1"
+bloomfilter = "1"
 ```
 
 Here is a simple example for creating a bloom filter with a false positive rate of 0.001 and query for presence of some numbers.
 
-```
+```rust
 use bloomfilter::Bloom;
 
 let num_items = 100000;
