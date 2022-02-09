@@ -6,8 +6,8 @@
 [![docs.rs](https://docs.rs/bloomfilter/badge.svg)](https://docs.rs/bloomfilter)
 [![Rust](https://img.shields.io/badge/rust-1.38.0%2B-blue.svg?maxAge=3600)](https://github.com/jedisct1/rust-bloom-filter)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://github.com/jedisct1/rust-bloom-filter/blob/master/LICENSE)
-<a href="https://codecov.io/gh/Ebedthan/rust-bloom-filter">
-    <img src="https://codecov.io/gh/Ebedthan/rust-bloom-filter/branch/main/graph/badge.svg">
+<a href="https://codecov.io/gh/jedisct1/rust-bloom-filter">
+    <img src="https://codecov.io/gh/jedisct1/rust-bloom-filter/branch/main/graph/badge.svg">
 </a>
  
 
