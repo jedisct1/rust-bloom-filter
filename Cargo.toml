@@ -9,11 +9,11 @@ repository = "https://github.com/jedisct1/rust-bloom-filter"
 edition = "2018"
 
 [dependencies]
-bit-vec = "0.6.3"
-getrandom = { version = "0.2.3", optional = true }
-siphasher = "0.3.7"
+bitvec = "1.0.1"
+getrandom = { version = "0.2.8", optional = true }
+siphasher = "0.3.10"
 
 [features]
 default = ["random"]
 random = ["getrandom"]
-serde = ["siphasher/serde_std", "bit-vec/serde"]
+serde = ["siphasher/serde_std", "bitvec/serde"]
