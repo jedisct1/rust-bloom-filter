@@ -159,13 +159,8 @@ impl<T: ?Sized> Bloom<T> {
         let mut hashes = [0u64, 0u64];
         for k_i in 0..self.k_num {
             let bit_offset = (self.bloom_hash(&mut hashes, item, k_i) % self.bitmap_bits) as usize;
-            match self.bit_vec.get(bit_offset) {
-                Some(b) => {
-                    if !b {
-                        return false;
-                    }
-                }
-                None => return false,
+            if self.bit_vec.get(bit_offset).unwrap() == false {
+                return false;
             }
         }
         true
@@ -240,7 +235,7 @@ impl<T: ?Sized> Bloom<T> {
 
     /// Clear all of the bits in the filter, removing all keys from the set
     pub fn clear(&mut self) {
-        self.bit_vec.clear()
+        self.bit_vec.fill(false)
     }
 
     #[inline]
