@@ -9,7 +9,7 @@
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 
-use bit_vec::BitVec;
+use bitvec::prelude::BitVec;
 #[cfg(feature = "random")]
 use getrandom::getrandom;
 use siphasher::sip::SipHasher13;
@@ -22,12 +22,12 @@ use std::marker::PhantomData;
 use siphasher::reexports::serde;
 
 pub mod reexports {
+    pub use bitvec;
     #[cfg(feature = "random")]
-    pub use ::getrandom;
-    pub use bit_vec;
+    pub use getrandom;
+    pub use siphasher;
     #[cfg(feature = "serde")]
     pub use siphasher::reexports::serde;
-    pub use siphasher;
 }
 
 /// Bloom filter structure
@@ -35,7 +35,7 @@ pub mod reexports {
 #[cfg_attr(feature = "serde", serde(crate = "serde"))]
 #[derive(Clone, Debug)]
 pub struct Bloom<T: ?Sized> {
-    bit_vec: BitVec,
+    bit_vec: BitVec<u8>,
     bitmap_bits: u64,
     k_num: u32,
     sips: [SipHasher13; 2],
@@ -52,7 +52,8 @@ impl<T: ?Sized> Bloom<T> {
         assert!(bitmap_size > 0 && items_count > 0);
         let bitmap_bits = (bitmap_size as u64) * 8u64;
         let k_num = Self::optimal_k_num(bitmap_bits, items_count);
-        let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
+        let mut bitmap = BitVec::new();
+        bitmap.resize(bitmap_bits as usize, false);
         let mut k1 = [0u8; 16];
         let mut k2 = [0u8; 16];
         k1.copy_from_slice(&seed[0..16]);
@@ -97,7 +98,7 @@ impl<T: ?Sized> Bloom<T> {
     /// Create a bloom filter structure from a previous state given as a `ByteVec` structure.
     /// The state is assumed to be retrieved from an existing bloom filter.
     pub fn from_bit_vec(
-        bit_vec: BitVec,
+        bit_vec: BitVec<u8>,
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
@@ -123,7 +124,7 @@ impl<T: ?Sized> Bloom<T> {
         k_num: u32,
         sip_keys: [(u64, u64); 2],
     ) -> Self {
-        Self::from_bit_vec(BitVec::from_bytes(bytes), bitmap_bits, k_num, sip_keys)
+        Self::from_bit_vec(BitVec::from_slice(bytes), bitmap_bits, k_num, sip_keys)
     }
 
     /// Compute a recommended bitmap size for items_count items
@@ -185,11 +186,11 @@ impl<T: ?Sized> Bloom<T> {
 
     /// Return the bitmap as a vector of bytes
     pub fn bitmap(&self) -> Vec<u8> {
-        self.bit_vec.to_bytes()
+        self.bit_vec.clone().into_vec()
     }
 
     /// Return the bitmap as a "BitVec" structure
-    pub fn bit_vec(&self) -> &BitVec {
+    pub fn bit_vec(&self) -> &BitVec<u8> {
         &self.bit_vec
     }
 
@@ -234,7 +235,7 @@ impl<T: ?Sized> Bloom<T> {
 
     /// Clear all of the bits in the filter, removing all keys from the set
     pub fn clear(&mut self) {
-        self.bit_vec.clear()
+        self.bit_vec.fill(false)
     }
 
     #[inline]
