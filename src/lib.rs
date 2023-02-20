@@ -14,6 +14,7 @@ use bit_vec::BitVec;
 use getrandom::getrandom;
 use siphasher::sip::SipHasher13;
 use std::cmp;
+use std::convert::TryFrom;
 use std::f64;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
@@ -25,9 +26,9 @@ pub mod reexports {
     #[cfg(feature = "random")]
     pub use ::getrandom;
     pub use bit_vec;
+    pub use siphasher;
     #[cfg(feature = "serde")]
     pub use siphasher::reexports::serde;
-    pub use siphasher;
 }
 
 /// Bloom filter structure
@@ -50,9 +51,12 @@ impl<T: ?Sized> Bloom<T> {
     /// seed is a random value used to generate the hash functions.
     pub fn new_with_seed(bitmap_size: usize, items_count: usize, seed: &[u8; 32]) -> Self {
         assert!(bitmap_size > 0 && items_count > 0);
-        let bitmap_bits = (bitmap_size as u64) * 8u64;
+        let bitmap_bits = u64::try_from(bitmap_size)
+            .unwrap()
+            .checked_mul(8u64)
+            .unwrap();
         let k_num = Self::optimal_k_num(bitmap_bits, items_count);
-        let bitmap = BitVec::from_elem(bitmap_bits as usize, false);
+        let bitmap = BitVec::from_elem(usize::try_from(bitmap_bits).unwrap(), false);
         let mut k1 = [0u8; 16];
         let mut k2 = [0u8; 16];
         k1.copy_from_slice(&seed[0..16]);
