@@ -4,23 +4,22 @@
 //!
 //! This is a simple but fast Bloom filter implementation, that requires only
 //! 2 hash functions, generated with SipHash-1-3 using randomized keys.
-//!
 
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 
-use bit_vec::BitVec;
-#[cfg(feature = "random")]
-use getrandom::getrandom;
-use siphasher::sip::SipHasher13;
 use std::cmp;
 use std::convert::TryFrom;
 use std::f64;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 
+use bit_vec::BitVec;
+#[cfg(feature = "random")]
+use getrandom::getrandom;
 #[cfg(feature = "serde")]
 use siphasher::reexports::serde;
+use siphasher::sip::SipHasher13;
 
 pub mod reexports {
     #[cfg(feature = "random")]
@@ -46,9 +45,10 @@ pub struct Bloom<T: ?Sized> {
 
 impl<T: ?Sized> Bloom<T> {
     /// Create a new bloom filter structure.
-    /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
-    /// items_count is an estimation of the maximum number of items to store.
-    /// seed is a random value used to generate the hash functions.
+    /// bitmap_size is the size in bytes (not bits) that will be allocated in
+    /// memory items_count is an estimation of the maximum number of items
+    /// to store. seed is a random value used to generate the hash
+    /// functions.
     pub fn new_with_seed(bitmap_size: usize, items_count: usize, seed: &[u8; 32]) -> Self {
         assert!(bitmap_size > 0 && items_count > 0);
         let bitmap_bits = u64::try_from(bitmap_size)
@@ -72,8 +72,9 @@ impl<T: ?Sized> Bloom<T> {
     }
 
     /// Create a new bloom filter structure.
-    /// bitmap_size is the size in bytes (not bits) that will be allocated in memory
-    /// items_count is an estimation of the maximum number of items to store.
+    /// bitmap_size is the size in bytes (not bits) that will be allocated in
+    /// memory items_count is an estimation of the maximum number of items
+    /// to store.
     #[cfg(feature = "random")]
     pub fn new(bitmap_size: usize, items_count: usize) -> Self {
         let mut seed = [0u8; 32];
@@ -98,8 +99,9 @@ impl<T: ?Sized> Bloom<T> {
         Bloom::new_with_seed(bitmap_size, items_count, seed)
     }
 
-    /// Create a bloom filter structure from a previous state given as a `ByteVec` structure.
-    /// The state is assumed to be retrieved from an existing bloom filter.
+    /// Create a bloom filter structure from a previous state given as a
+    /// `ByteVec` structure. The state is assumed to be retrieved from an
+    /// existing bloom filter.
     pub fn from_bit_vec(
         bit_vec: BitVec,
         bitmap_bits: u64,
@@ -119,8 +121,9 @@ impl<T: ?Sized> Bloom<T> {
         }
     }
 
-    /// Create a bloom filter structure with an existing state given as a byte array.
-    /// The state is assumed to be retrieved from an existing bloom filter.
+    /// Create a bloom filter structure with an existing state given as a byte
+    /// array. The state is assumed to be retrieved from an existing bloom
+    /// filter.
     pub fn from_existing(
         bytes: &[u8],
         bitmap_bits: u64,
