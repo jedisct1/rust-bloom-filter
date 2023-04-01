@@ -4,7 +4,6 @@
     <img src="https://img.shields.io/github/workflow/status/jedisct1/rust-bloom-filter/Continuous%20Integration?style=flat&logo=GitHub%20Actions">
 </a>
 [![docs.rs](https://docs.rs/bloomfilter/badge.svg)](https://docs.rs/bloomfilter)
-[![Rust](https://img.shields.io/badge/rust-1.38.0%2B-blue.svg?maxAge=3600)](https://github.com/jedisct1/rust-bloom-filter)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://github.com/jedisct1/rust-bloom-filter/blob/master/LICENSE)
 <a href="https://codecov.io/gh/jedisct1/rust-bloom-filter">
     <img src="https://codecov.io/gh/jedisct1/rust-bloom-filter/branch/main/graph/badge.svg">
@@ -40,9 +39,6 @@ bloom.set(&10);   // insert 10 in the bloom filter
 bloom.check(&10); // return true
 bloom.check(&20); // return false
 ```
-
-### Minimum Rust version
-This crate's minimum supported `rustc` version is 1.38.0.
 
 ### License
 This project is licensed under the ISC license ([LICENSE](https://github.com/jedisct1/rust-bloom-filter/blob/master/LICENSE) or https://opensource.org/licenses/ISC).
