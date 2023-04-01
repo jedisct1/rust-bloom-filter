@@ -245,6 +245,16 @@ impl<T: ?Sized> Bloom<T> {
         self.bit_vec.clear()
     }
 
+    /// Set all of the bits in the filter, making it appear like every key is in the set
+    pub fn fill(&mut self) {
+        self.bit_vec.set_all()
+    }
+
+    /// Test if there are no elements in the set
+    pub fn is_empty(&self) -> bool {
+        !self.bit_vec.any()
+    }
+
     #[inline]
     fn sip_new(key: &[u8; 16]) -> SipHasher13 {
         SipHasher13::new_with_key(key)
