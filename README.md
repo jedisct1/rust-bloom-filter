@@ -10,7 +10,7 @@
 </a>
  
 
-A simple but fast implementation of the Bloom filter in Rust. The Bloom filter is a a space-efficient probabilistic data structure supporting dynamic set membership queries with false positives. It was introduced by Burton H. Bloom in 1970 [(Bloom, 1970)](https://dl.acm.org/doi/10.1145/362686.362692) and have since benn increasingly used in computing applications and bioinformatics.
+A simple but fast implementation of the Bloom filter in Rust. The Bloom filter is a a space-efficient probabilistic data structure supporting dynamic set membership queries with false positives. It was introduced by Burton H. Bloom in 1970 [(Bloom, 1970)](https://dl.acm.org/doi/10.1145/362686.362692) and have since been increasingly used in computing applications and bioinformatics.
 
 ### Documentation
 
