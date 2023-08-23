@@ -235,8 +235,8 @@ impl<T: ?Sized> Bloom<T> {
             hashes[k_i as usize] = hash;
             hash
         } else {
-            (hashes[0] as u128).wrapping_add((k_i as u128).wrapping_mul(hashes[1] as u128)) as u64
-                % 0xffffffffffffffc5
+            (hashes[0]).wrapping_add((k_i as u64).wrapping_mul(hashes[1]))
+                % 0xFFFF_FFFF_FFFF_FFC5u64 //largest u64 prime
         }
     }
 
