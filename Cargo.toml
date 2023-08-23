@@ -10,8 +10,8 @@ edition = "2018"
 
 [dependencies]
 bit-vec = "0.6.3"
-getrandom = { version = "0.2.8", optional = true }
-siphasher = "0.3.10"
+getrandom = { version = "0.2.10", optional = true }
+siphasher = "1.0.0"
 
 [features]
 default = ["random"]
