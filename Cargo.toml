@@ -11,11 +11,13 @@ keywords = ["bloom", "filter"]
 readme = "README.md"
 
 [dependencies]
-bit-vec = "0.6.3"
+bit-vec = { version = "0.6.3", default-features = false }
 getrandom = { version = "0.2.10", optional = true }
-siphasher = "1.0.0"
+libm = "0.2.7"
+siphasher = { version = "1.0.0", default-features = false }
 
 [features]
-default = ["random"]
+default = ["random", "std"]
 random = ["getrandom"]
-serde = ["siphasher/serde_std", "bit-vec/serde"]
+serde = ["std", "siphasher/serde_std", "bit-vec/serde"]
+std = ["bit-vec/std", "siphasher/std"]
