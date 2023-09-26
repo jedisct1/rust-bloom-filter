@@ -6,14 +6,15 @@
 //! This is a simple but fast Bloom filter implementation, that requires only
 //! 2 hash functions, generated with SipHash-1-3 using randomized keys.
 
+#![cfg_attr(not(feature = "std"), no_std)]
 #![warn(non_camel_case_types, non_upper_case_globals, unused_qualifications)]
 #![allow(clippy::unreadable_literal, clippy::bool_comparison)]
 
-use std::cmp;
-use std::convert::TryFrom;
-use std::f64;
-use std::hash::{Hash, Hasher};
-use std::marker::PhantomData;
+use core::cmp;
+use core::convert::TryFrom;
+use core::f64;
+use core::hash::{Hash, Hasher};
+use core::marker::PhantomData;
 
 use bit_vec::BitVec;
 #[cfg(feature = "random")]
@@ -142,7 +143,7 @@ impl<T: ?Sized> Bloom<T> {
         assert!(fp_p > 0.0 && fp_p < 1.0);
         let log2 = f64::consts::LN_2;
         let log2_2 = log2 * log2;
-        ((items_count as f64) * f64::ln(fp_p) / (-8.0 * log2_2)).ceil() as usize
+        libm::ceil((items_count as f64) * libm::log(fp_p) / (-8.0 * log2_2)) as usize
     }
 
     /// Record the presence of an item.
@@ -192,6 +193,7 @@ impl<T: ?Sized> Bloom<T> {
     }
 
     /// Return the bitmap as a vector of bytes
+    #[cfg(feature = "std")]
     pub fn bitmap(&self) -> Vec<u8> {
         self.bit_vec.to_bytes()
     }
@@ -220,7 +222,7 @@ impl<T: ?Sized> Bloom<T> {
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
-        let k_num = (m / n * f64::ln(2.0f64)).ceil() as u32;
+        let k_num = libm::ceil(m / n * libm::log(2.0f64)) as u32;
         cmp::max(k_num, 1)
     }
 

@@ -1,4 +1,6 @@
-use bloomfilter::{reexports::getrandom::getrandom, Bloom};
+use bloomfilter::Bloom;
+#[cfg(feature = "random")]
+use bloomfilter::reexports::getrandom::getrandom;
 
 #[test]
 #[cfg(feature = "random")]
@@ -34,7 +36,7 @@ fn bloom_test_clear() {
 }
 
 #[test]
-#[cfg(feature = "random")]
+#[cfg(all(feature = "random", feature = "std"))]
 fn bloom_test_load() {
     let mut original = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
