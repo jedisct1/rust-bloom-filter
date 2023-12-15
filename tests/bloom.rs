@@ -6,9 +6,9 @@ fn bloom_test_set() {
     let mut bloom = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
     getrandom(&mut k).unwrap();
-    assert!(bloom.check(&k) == false);
+    assert!(!bloom.check(&k));
     bloom.set(&k);
-    assert!(bloom.check(&k) == true);
+    assert!(bloom.check(&k));
 }
 
 #[test]
@@ -17,8 +17,8 @@ fn bloom_test_check_and_set() {
     let mut bloom = Bloom::new(10, 80);
     let mut k = vec![0u8, 16];
     getrandom(&mut k).unwrap();
-    assert!(bloom.check_and_set(&k) == false);
-    assert!(bloom.check_and_set(&k) == true);
+    assert!(!bloom.check_and_set(&k));
+    assert!(bloom.check_and_set(&k));
 }
 
 #[test]
@@ -28,9 +28,9 @@ fn bloom_test_clear() {
     let mut k = vec![0u8, 16];
     getrandom(&mut k).unwrap();
     bloom.set(&k);
-    assert!(bloom.check(&k) == true);
+    assert!(bloom.check(&k));
     bloom.clear();
-    assert!(bloom.check(&k) == false);
+    assert!(!bloom.check(&k));
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn bloom_test_load() {
     let mut k = vec![0u8, 16];
     getrandom(&mut k).unwrap();
     original.set(&k);
-    assert!(original.check(&k) == true);
+    assert!(original.check(&k));
 
     let cloned = Bloom::from_existing(
         &original.bitmap(),
@@ -48,5 +48,5 @@ fn bloom_test_load() {
         original.number_of_hash_functions(),
         original.sip_keys(),
     );
-    assert!(cloned.check(&k) == true);
+    assert!(cloned.check(&k));
 }

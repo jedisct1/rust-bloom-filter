@@ -1,6 +1,6 @@
 [package]
 name = "bloomfilter"
-version = "1.0.12"
+version = "1.0.13"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter implementation"
 license = "ISC"
@@ -10,9 +10,14 @@ edition = "2018"
 keywords = ["bloom", "filter"]
 readme = "README.md"
 
+[target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", optional = true, features = ["js"] }
+
+[target.'cfg(not(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown")))'.dependencies]
+getrandom = { version = "0.2", optional = true }
+
 [dependencies]
 bit-vec = "0.6.3"
-getrandom = { version = "0.2.10", optional = true }
 siphasher = "1.0.0"
 
 [features]
