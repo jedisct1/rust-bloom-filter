@@ -17,8 +17,8 @@ getrandom = { version = "0.2", optional = true, features = ["js"] }
 getrandom = { version = "0.2", optional = true }
 
 [dependencies]
-bit-vec = "0.6.3"
-siphasher = "1.0.0"
+bit-vec = "0.7.0"
+siphasher = "1.0.1"
 
 [features]
 default = ["random"]
