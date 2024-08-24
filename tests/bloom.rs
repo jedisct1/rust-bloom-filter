@@ -50,3 +50,24 @@ fn bloom_test_load() {
     );
     assert!(cloned.check(&k));
 }
+
+/// Test the false positive rate of the bloom filter
+/// to ensure that using floor doesn't affect false positive rate
+/// in a significant way
+#[test]
+fn test_false_positive_rate() {
+    let capacities = [100, 1000, 10000, 100000, 1000000];
+    for capacity in capacities.iter() {
+        let mut bf: Bloom<usize> = Bloom::new(*capacity * 10 / 8, *capacity);
+        for index in 0..*capacity {
+            bf.set(&index);
+        }
+        let mut false_positives_count = 0.0;
+        for index in *capacity..11 * *capacity {
+            if bf.check(&index) {
+                false_positives_count += 1.0;
+            }
+        }
+        println!("False positive rate for capacity {}: {}", *capacity, false_positives_count / (10.0 * *capacity as f64));
+    }
+}
