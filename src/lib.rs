@@ -14,6 +14,7 @@ use std::convert::TryFrom;
 use std::f64;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
+use std::cmp::max;
 
 use bit_vec::BitVec;
 #[cfg(feature = "random")]
@@ -220,7 +221,7 @@ impl<T: ?Sized> Bloom<T> {
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
-        let k_num = (m / n * f64::ln(2.0f64)).ceil() as u32;
+        let k_num = max((m / n * f64::ln(2.0f64)).floor() as u32, 1);
         cmp::max(k_num, 1)
     }
 
