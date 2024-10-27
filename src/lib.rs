@@ -1,4 +1,4 @@
-// (C)opyleft 2013-2021 Frank Denis
+// (C)opyleft 2013-2024 Frank Denis
 // Licensed under the ICS license (https://opensource.org/licenses/ISC)
 
 //! Bloom filter for Rust
