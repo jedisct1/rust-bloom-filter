@@ -22,6 +22,8 @@ use getrandom::getrandom;
 use siphasher::reexports::serde;
 use siphasher::sip::SipHasher13;
 
+pub const VERSION: u8 = 0;
+
 pub mod reexports {
     #[cfg(feature = "random")]
     pub use ::getrandom;
@@ -29,6 +31,14 @@ pub mod reexports {
     pub use siphasher;
     #[cfg(feature = "serde")]
     pub use siphasher::reexports::serde;
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(crate = "serde"))]
+#[derive(Clone, Debug)]
+pub struct BitStruct {
+    bit_vec: BitVec,
+    version: u8,
 }
 
 /// Bloom filter structure
@@ -101,25 +111,29 @@ impl<T: ?Sized> Bloom<T> {
     }
 
     /// Create a bloom filter structure from a previous state given as a
-    /// `ByteVec` structure. The state is assumed to be retrieved from an
+    /// `ByteStruct` structure. The state is assumed to be retrieved from an
     /// existing bloom filter.
-    pub fn from_bit_vec(
-        bit_vec: BitVec,
+    /// Unlike `from_existing()`, this function consumes the structure instead of a reference.
+    pub fn from_bit_struct(
+        bit_struct: BitStruct,
         bitmap_bits: u64,
         k_num: u32,
         sip_keys: [(u64, u64); 2],
-    ) -> Self {
+    ) -> Result<Self, &'static str> {
         let sips = [
             SipHasher13::new_with_keys(sip_keys[0].0, sip_keys[0].1),
             SipHasher13::new_with_keys(sip_keys[1].0, sip_keys[1].1),
         ];
-        Self {
-            bit_vec,
+        if bit_struct.version != VERSION {
+            return Err("Version mismatch");
+        }
+        Ok(Self {
+            bit_vec: bit_struct.bit_vec,
             bitmap_bits,
             k_num,
             sips,
             _phantom: PhantomData,
-        }
+        })
     }
 
     /// Create a bloom filter structure with an existing state given as a byte
@@ -131,7 +145,11 @@ impl<T: ?Sized> Bloom<T> {
         k_num: u32,
         sip_keys: [(u64, u64); 2],
     ) -> Self {
-        Self::from_bit_vec(BitVec::from_bytes(bytes), bitmap_bits, k_num, sip_keys)
+        let bit_struct = BitStruct {
+            bit_vec: BitVec::from_bytes(bytes),
+            version: VERSION,
+        };
+        Self::from_bit_struct(bit_struct, bitmap_bits, k_num, sip_keys).expect("Invalid state")
     }
 
     /// Compute a recommended bitmap size for items_count items
@@ -196,9 +214,14 @@ impl<T: ?Sized> Bloom<T> {
         self.bit_vec.to_bytes()
     }
 
-    /// Return the bitmap as a "BitVec" structure
-    pub fn bit_vec(&self) -> &BitVec {
-        &self.bit_vec
+    /// Turn the bitmap into a serializable structure.
+    /// The structure can be turned back into a bloom filter with
+    /// `from_bit_struct()`.
+    pub fn to_struct(self) -> BitStruct {
+        BitStruct {
+            bit_vec: self.bit_vec,
+            version: VERSION,
+        }
     }
 
     /// Return the number of bits in the filter
