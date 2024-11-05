@@ -1,6 +1,6 @@
 [package]
 name = "bloomfilter"
-version = "1.0.15"
+version = "2.0.0"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter implementation"
 license = "ISC"

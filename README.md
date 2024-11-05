@@ -20,7 +20,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-bloomfilter = "1"
+bloomfilter = "2"
 ```
 
 Here is a simple example for creating a bloom filter with a false positive rate of 0.001 and query for presence of some numbers.
