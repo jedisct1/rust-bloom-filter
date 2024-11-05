@@ -243,7 +243,7 @@ impl<T: ?Sized> Bloom<T> {
     fn optimal_k_num(bitmap_bits: u64, items_count: usize) -> u32 {
         let m = bitmap_bits as f64;
         let n = items_count as f64;
-        let k_num = (m / n * f64::ln(2.0f64)).ceil() as u32;
+        let k_num = (m / n * f64::ln(2.0f64)).round() as u32;
         cmp::max(k_num, 1)
     }
 
