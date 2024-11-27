@@ -41,6 +41,9 @@ pub struct BitStruct {
     version: u8,
 }
 
+/// Function definition of the defrag callback (to defragment the Bloom struct's underlying `bit_vec`).
+pub type BitVecDefragCb = fn(bit_vec: Vec<u32>) -> Vec<u32>;
+
 /// Bloom filter structure
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(crate = "serde"))]
@@ -222,6 +225,22 @@ impl<T: ?Sized> Bloom<T> {
             bit_vec: self.bit_vec,
             version: VERSION,
         }
+    }
+
+    /// Defragment the Bloom structure's underlying BitVec by invoking
+    /// the provided defragmention callback and replacing the Vec<u32> within
+    /// `self.bit_vec` with the returned (newly allocated) Vec<u32>.
+    /// The callback is responsible for allocating a new Vec and freeing the
+    /// provided Vec (as part of defragmentation).
+    pub fn defrag(&mut self, callback: BitVecDefragCb) {
+        let vec_mut = unsafe {
+            self.bit_vec.storage_mut()
+        };
+        let original_bit_vec = std::mem::take(vec_mut);
+        let new_bit_vec: Vec<u32> = callback(original_bit_vec);
+        unsafe {
+            let _ = std::mem::replace(self.bit_vec.storage_mut(), new_bit_vec);
+        };
     }
 
     /// Return the number of bits in the filter
