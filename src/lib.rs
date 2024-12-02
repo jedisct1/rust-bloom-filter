@@ -263,7 +263,7 @@ impl<T: ?Sized> Bloom<T> {
     pub fn seed(&self) -> [u8; 32] {
         let mut seed = [0u8; 32];
         seed[0..16].copy_from_slice(&self.sips[0].key());
-        seed[16..32].copy_from_slice(&self.sips[0].key());
+        seed[16..32].copy_from_slice(&self.sips[1].key());
         seed
     }
 
