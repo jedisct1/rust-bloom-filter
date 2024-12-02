@@ -1,6 +1,6 @@
 [package]
 name = "bloomfilter"
-version = "2.0.0"
+version = "3.0.0"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter implementation"
 license = "ISC"
@@ -17,10 +17,9 @@ getrandom = { version = "0.2", optional = true, features = ["js"] }
 getrandom = { version = "0.2", optional = true }
 
 [dependencies]
-bit-vec = "0.8.0"
 siphasher = "1.0.1"
 
 [features]
 default = ["random"]
 random = ["getrandom"]
-serde = ["siphasher/serde_std", "bit-vec/serde"]
+serde = ["siphasher/serde_std"]
