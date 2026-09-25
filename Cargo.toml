@@ -2,12 +2,12 @@
 name = "bloomfilter"
 version = "3.0.1"
 authors = ["Frank Denis <github@pureftpd.org>"]
-description = "Bloom filter implementation"
+description = "Bloom filter for space-efficient probabilistic set membership tests with configurable false-positive rates"
 license = "ISC"
 homepage = "https://github.com/jedisct1/rust-bloom-filter"
 repository = "https://github.com/jedisct1/rust-bloom-filter"
 edition = "2018"
-keywords = ["bloom", "filter"]
+keywords = ["bloom", "bloom-filter", "probabilistic", "membership", "filter"]
 readme = "README.md"
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
