@@ -1,6 +1,6 @@
 [package]
 name = "bloomfilter"
-version = "3.0.1"
+version = "3.0.2"
 authors = ["Frank Denis <github@pureftpd.org>"]
 description = "Bloom filter for space-efficient probabilistic set membership tests with configurable false-positive rates"
 license = "ISC"
@@ -17,7 +17,7 @@ getrandom = { version = "0.2", optional = true, features = ["js"] }
 getrandom = { version = "0.2", optional = true }
 
 [dependencies]
-siphasher = "1.0.1"
+siphasher = "1.0.3"
 
 [features]
 default = ["random"]
